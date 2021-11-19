@@ -1,10 +1,28 @@
 <template>
   <div>
-    <div>{{ $store.state.user.profile.nickname }}</div>
-    <button @click="$store.commit('user/setUser', {nickname: '123'})">changeUser</button>
+    <button @click="getDataApi">request-test</button>
   </div>
 </template>
 
-<style lang="less">
+<script>
+import request from '@/uitls/request'
+
+export default {
+  methods: {
+    async getDataApi () {
+      const data = await request.post('/login', {
+        account: 'xiaotuxian001',
+        password: '123456'
+      })
+      console.log(data)
+    }
+  },
+  mounted () {
+    console.log(this.$route.fullPath)
+  }
+}
+</script>
+
+<style scoped lang="less">
 
 </style>
