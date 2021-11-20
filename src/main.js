@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-createApp(App).use(store).use(router).mount('#app')
+import 'normalize.css'
+import './assets/styles/common.less'
 
-const str = encodeURIComponent('/123?aa=32')
-console.log(decodeURIComponent(str))
+createApp(App).use(store).use(router).mount('#app')
