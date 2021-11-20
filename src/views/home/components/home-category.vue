@@ -7,6 +7,10 @@
         <template v-if="menu.children">
           <RouterLink v-for="it in menu.children" :key="it.id" to="/">{{ it.name }}</RouterLink>
         </template>
+        <template v-else>
+          <c-skeleton width="50px" height="20px" bg="rgba(255,255,255,0.1)" gutter="5px" animate-type="fade"></c-skeleton>
+          <c-skeleton width="50px" height="20px" bg="rgba(255,255,255,0.1)" gutter="5px" animate-type="fade"></c-skeleton>
+        </template>
       </li>
     </ul>
     <!-- 弹层 -->
@@ -44,9 +48,11 @@
 import { useStore } from 'vuex'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { getHotBrandsApi } from '@/api'
+import CSkeleton from '@/components/library/c-skeleton'
 
 export default {
   name: 'HomeCategory',
+  components: { CSkeleton },
   setup () {
     const store = useStore()
     const currentMenu = ref({}) // 当前激活的菜单
