@@ -96,7 +96,7 @@ export default {
   background-color: #fff;
   position: absolute;
   left: 0px;
-  top: 100px;
+  top: 90%;
   height: 0;
   overflow: hidden;
   opacity: 0;
