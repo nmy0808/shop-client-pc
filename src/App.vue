@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <button @click="getDataApi">request-test</button>
+  <div class="app">
+    <router-view></router-view>
   </div>
 </template>
 
