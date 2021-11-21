@@ -14,7 +14,6 @@ export default {
     const banners = ref([])
     onMounted(async () => {
       banners.value = await getBannersApi()
-      console.log(banners.value)
     })
     return {
       banners

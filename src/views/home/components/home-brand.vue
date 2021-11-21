@@ -1,14 +1,16 @@
 <template>
-  <HomePanel ref="target" title="热门品牌" sub-title="国际经典 品质保证">
+  <HomePanel ref='target' title='热门品牌' sub-title='国际经典 品质保证'>
     <template v-slot:right>
-      <a href="javascript:;" class="iconfont icon-angle-left prev"></a>
-      <a href="javascript:;" class="iconfont icon-angle-right next"></a>
+      <a href='javascript:;' @click='handleSkip(currentIndex - 1)' class='iconfont icon-angle-left prev'
+         :class='{disabled:currentIndex === 0}'></a>
+      <a href='javascript:;' @click='handleSkip(currentIndex + 1)' class='iconfont icon-angle-right next'
+         :class='{disabled:currentIndex === data.length / 5 -1}'></a>
     </template>
-    <div class="box" ref="box">
-      <ul class="list">
-        <li v-for="i in 10" :key="i">
-          <RouterLink to="/">
-            <img v-lazy="`//zhoushugang.gitee.io/erabbit-client-pc-static/uploads/brand_goods_1.jpg`" src="" alt="">
+    <div class='box' ref='boxWrap'>
+      <ul class='list' :style='{transform: `translateX(-${currentIndex * boxWidth}px)`}'>
+        <li v-for='item in data' :key='item.id'>
+          <RouterLink to='/'>
+            <img v-lazy='item.picture'>
           </RouterLink>
         </li>
       </ul>
@@ -19,16 +21,31 @@
 <script>
 import HomePanel from './home-panel'
 import useLazyData from '@/hook/useLazyData'
+import { getHotBrandsApi } from '@/api'
+import { onMounted, ref } from 'vue'
 
 export default {
   name: 'HomeBrand',
   components: { HomePanel },
-  setup () {
-    // const { target } = useLazyData(() => {
-    // })
-    // return {
-    //   target
-    // }
+  setup() {
+    const { target, data } = useLazyData(() => getHotBrandsApi(10))
+    const currentIndex = ref(0)
+    const handleSkip = (index) => {
+      currentIndex.value = index
+    }
+    const boxWrap = ref(null)
+    const boxWidth = ref(null)
+    onMounted(() => {
+      boxWidth.value = boxWrap.value.clientWidth
+    })
+    return {
+      currentIndex,
+      target,
+      boxWrap,
+      boxWidth,
+      data,
+      handleSkip
+    }
   }
 }
 </script>
@@ -56,6 +73,7 @@ export default {
 
   &.disabled {
     background: #ccc;
+    pointer-events : none;
     cursor: not-allowed;
   }
 }

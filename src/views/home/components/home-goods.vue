@@ -1,13 +1,13 @@
 <template>
-  <div class="goods-item">
-    <RouterLink to="/" class="image">
-      <img src="http://zhoushugang.gitee.io/erabbit-client-pc-static/uploads/fresh_goods_1.jpg" alt=""/>
+  <div class='goods-item' ref='target'>
+    <RouterLink to='/' class='image'>
+      <img :src='data.picture' alt=''>
     </RouterLink>
-    <p class="name ellipsis-2">美威 智利原味三文鱼排 240g/袋 4片装</p>
-    <p class="desc">海鲜年货</p>
-    <p class="price">&yen;108.00</p>
-    <div class="extra">
-      <RouterLink to="/">
+    <p class='name ellipsis-2'>{{data.name}}</p>
+    <p class='desc ellipsis'>{{data.desc}}</p>
+    <p class='price'>&yen;{{data.price}}</p>
+    <div class='extra'>
+      <RouterLink to='/'>
         <span>找相似</span>
         <span>发现现多宝贝 &gt;</span>
       </RouterLink>
@@ -16,8 +16,16 @@
 </template>
 
 <script>
+
 export default {
-  name: 'HomeGoods'
+  name: 'HomeGoods',
+  props: {
+    data: {
+      type: Object,
+      default: () => ({})
+    }
+  }
+
 }
 </script>
 
