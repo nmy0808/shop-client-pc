@@ -6,6 +6,7 @@
     </div>
     <div>
       <home-new></home-new>
+      <home-hot></home-hot>
     </div>
   </div>
 </template>
@@ -14,10 +15,12 @@
 import HomeCategory from '@/views/home/components/home-category'
 import HomeBanner from '@/views/home/components/home-banner'
 import HomeNew from '@/views/home/components/home-new'
+import HomeHot from '@/views/home/components/home-hot'
 
 export default {
   name: 'home-page',
   components: {
+    HomeHot,
     HomeNew,
     HomeBanner,
     HomeCategory
