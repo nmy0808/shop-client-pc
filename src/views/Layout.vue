@@ -31,6 +31,5 @@ export default {
 
 <style scoped>
 .footer{
-  height: 3000px;
 }
 </style>
