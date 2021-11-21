@@ -11,6 +11,9 @@
     <div class="container">
       <home-brand></home-brand>
     </div>
+    <div>
+      <home-product></home-product>
+    </div>
   </div>
 </template>
 
@@ -20,10 +23,12 @@ import HomeBanner from '@/views/home/components/home-banner'
 import HomeNew from '@/views/home/components/home-new'
 import HomeHot from '@/views/home/components/home-hot'
 import HomeBrand from '@/views/home/components/home-brand'
+import HomeProduct from '@/views/home/components/home-product'
 
 export default {
   name: 'home-page',
   components: {
+    HomeProduct,
     HomeBrand,
     HomeHot,
     HomeNew,
