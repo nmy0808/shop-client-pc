@@ -5,27 +5,41 @@
         <c-more path="/"/>
       </template>
       <!-- 面板内容 -->
-      <ul class="goods-list">
-        <li v-for="item in 4" :key="item">
+      <ul class="goods-list" v-if="list.length>0">
+        <li v-for="item in list" :key="item.id">
           <RouterLink to="/">
-            <img src="https://yanxuan-item.nosdn.127.net/3892e311f3494d2bcc2c1f8ed9e34271.png" alt="">
-            <p class="name ellipsis">biaoti</p>
-            <p class="price">&yen;价格</p>
+            <img v-lazy="item.picture" alt="">
+            <p class="name ellipsis">{{ item.name }}</p>
+            <p class="price">&yen;{{ item.price }}</p>
           </RouterLink>
         </li>
+      </ul>
+      <ul class="goods-list" v-else>
+        <c-skeleton v-for="item in 4" :key="item" width="306px" height="306px" animate-type="shan"></c-skeleton>
       </ul>
     </HomePanel>
   </div>
 </template>
 <script>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import HomePanel from './home-panel'
+import { getNewApi } from '@/api'
+import CSkeleton from '@/components/library/c-skeleton'
 
 export default {
   name: 'HomeNew',
-  components: { HomePanel },
+  components: {
+    CSkeleton,
+    HomePanel
+  },
   setup () {
-    return {}
+    const list = ref([])
+    onMounted(async () => {
+      list.value = await getNewApi()
+    })
+    return {
+      list
+    }
   }
 }
 </script>
