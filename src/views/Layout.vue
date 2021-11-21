@@ -4,7 +4,7 @@
   <main class="header">
     <router-view></router-view>
   </main>
-  <footer class="footer">3</footer>
+  <app-footer></app-footer>
   <app-header-sticky></app-header-sticky>
 </template>
 
@@ -13,10 +13,12 @@ import AppTopnav from '@/components/app-topnav'
 import AppHeader from '@/components/app-header'
 import { useStore } from 'vuex'
 import AppHeaderSticky from '@/components/app-header-sticky'
+import AppFooter from '@/components/app-footer'
 
 export default {
   name: 'layout',
   components: {
+    AppFooter,
     AppHeaderSticky,
     AppHeader,
     AppTopnav
