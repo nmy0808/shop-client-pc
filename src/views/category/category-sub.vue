@@ -5,15 +5,18 @@
       :parent='{name:categoryData.parentName, id:categoryData.parentId}'
     ></sub-bread>
     <!-- 筛选区 -->
-    <sub-filter></sub-filter>
+    <sub-filter
+      @filter-change='handleFilterChange'
+      :brands='categoryData.brands'
+      :saleProperties='categoryData.saleProperties' />
     <!-- 结果区域 -->
-    <div class="goods-list">
+    <div class='goods-list'>
       <!-- 排序 -->
       <SubSort />
       <!-- 列表 -->
       <ul>
-        <li v-for="i in 20" :key="i" >
-          <GoodsItem :goods="{}" />
+        <li v-for='i in 20' :key='i'>
+          <GoodsItem :goods='{}' />
         </li>
       </ul>
     </div>
@@ -39,12 +42,17 @@ export default {
     const route = useRoute()
     const id = computed(() => route.params.id)
     const categoryData = ref({})
+    const searchParams = {}
     // api 获取二级类目-筛选条件
     const getSubCategoryData = async () => {
       const data = await getSubCategoryApi(id.value)
       categoryData.value = data
-      console.log(data)
     }
+    // 筛选条件改变事件
+    const handleFilterChange = (filterSearch) => {
+      Object.assign(searchParams, filterSearch)
+    }
+    // 排序改变事件
     //
     const stop = watchEffect(() => {
       if (route.name !== 'categorySub') return
@@ -54,7 +62,7 @@ export default {
     onUnmounted(() => {
       stop()
     })
-    return { id, categoryData }
+    return { id, categoryData, handleFilterChange }
   }
 }
 </script>
