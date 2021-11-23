@@ -44,7 +44,7 @@ import { useStore } from 'vuex'
 import HomeBanner from '@/views/home/components/home-banner'
 import GoodsItem from '@/views/category/components/goods-item'
 import CMore from '@/components/library/c-more'
-import { getCategoryTopApi } from '@/api'
+import { getTopCategoryApi } from '@/api'
 
 export default {
   name: 'category-page',
@@ -78,7 +78,7 @@ export default {
     }
     // 获取分类商品列表
     const getGoodsList = async () => {
-      const { children } = await getCategoryTopApi(currentCategoryId.value)
+      const { children } = await getTopCategoryApi(currentCategoryId.value)
       goodList.value = children
     }
     // 监听id
