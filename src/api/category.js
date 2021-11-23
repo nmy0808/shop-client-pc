@@ -5,6 +5,10 @@ export function getCategoryListApi() {
 }
 
 // 根据id获取一级类目
-export function getCategoryTopApi(id) {
+export function getTopCategoryApi(id) {
   return request.get('/category', { id })
+}
+// 根据id获取二级类目-筛选条件
+export function getSubCategoryApi(id) {
+  return request.get('/category/sub/filter', { id })
 }
