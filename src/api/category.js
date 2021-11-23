@@ -14,7 +14,7 @@ export function getSubCategoryApi(id) {
   return request.get('/category/sub/filter', { id })
 }
 
-// 商品列表--分页查询 具体参数在文档
+// 商品列表--分页查询 具体参数在文档 (目前是临时api)
 export function getGoodsByFilterApi(filter) {
-  return request.get(' /category/goods/temporary', filter)
+  return request.post('/category/goods/temporary', filter)
 }
