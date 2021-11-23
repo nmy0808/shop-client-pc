@@ -13,37 +13,38 @@
     <div class='sub-list'>
       <h3>全部分类</h3>
       <ul>
-        <li v-for='i in 8' :key='i'>
-          <a href='javascript:;'>
-            <img src='http://zhoushugang.gitee.io/erabbit-client-pc-static/uploads/img/category%20(9).png'>
-            <p>空调</p>
-          </a>
+        <li v-for='item in subCateGoryList' :key='item.id'>
+          <router-link :to='{name: "categorySub", params: {id: item.id}}'>
+            <img :src='item.picture' alt=''>
+            <p>{{ item.name }}</p>
+          </router-link>
         </li>
       </ul>
     </div>
     <!-- 不同分类商品 -->
-    <div class="ref-goods">
-      <div class="head">
-        <h3>- 海鲜 -</h3>
-        <p class="tag">温暖柔软，品质之选</p>
+    <div class='ref-goods' v-for='item in goodList' :key='item.id'>
+      <div class='head'>
+        <h3>- {{ item.name }} -</h3>
+        <p class='tag'>温暖柔软，品质之选</p>
         <CMore />
       </div>
-      <div class="body">
-        <GoodsItem v-for="i in 5" :key="i" />
+      <div class='body' v-if='item.goods'>
+        <GoodsItem v-for='good in item.goods' :data='good' :key='good' />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { onUnmounted, ref, watchEffect } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onUnmounted, ref, watchEffect } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import CBread from '@/components/library/c-bread'
 import CBreadItem from '@/components/library/c-bread-item'
 import { useStore } from 'vuex'
 import HomeBanner from '@/views/home/components/home-banner'
 import GoodsItem from '@/views/category/components/goods-item'
 import CMore from '@/components/library/c-more'
+import { getCategoryTopApi } from '@/api'
 
 export default {
   name: 'category-page',
@@ -51,18 +52,50 @@ export default {
   components: { CMore, GoodsItem, HomeBanner, CBreadItem, CBread },
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const store = useStore()
+    // - data
+    // 当前分类名称
     const categoryName = ref('')
+    // 当前子分类集合
+    const subCateGoryList = ref([])
+    // 当前分类id
+    const currentCategoryId = computed(() => route.params.id)
+    // 当前分类数据对象 , 默认值{}
+    const currentCategory = computed(() => {
+      return store.state.category.list.filter(item => item.id === currentCategoryId.value)[0] || {}
+    })
+    // 当前分类商品列表
+    const goodList = ref([])
+    // - method
+    // 获取当前面包屑
+    const getCurrentBread = () => {
+      categoryName.value = currentCategory.value.name
+    }
+    // 获取当前子分类集合
+    const getCurrentSubCategory = () => {
+      subCateGoryList.value = currentCategory.value.children
+    }
+    // 获取分类商品列表
+    const getGoodsList = async () => {
+      const { children } = await getCategoryTopApi(currentCategoryId.value)
+      goodList.value = children
+    }
+    // 监听id
     const stop = watchEffect(() => {
       if (route.name !== 'category') return
-      const { id } = route.params
-      const routeData = store.state.category.list.filter(item => item.id === id)[0]
-      routeData && (categoryName.value = routeData.name)
+      if (currentCategoryId.value === 'undefined') {
+        router.push({ name: 'home' })
+        return
+      }
+      getCurrentBread()
+      getCurrentSubCategory()
+      getGoodsList()
     })
     onUnmounted(() => {
       stop()
     })
-    return { categoryName }
+    return { categoryName, subCateGoryList, goodList }
   }
 }
 </script>
@@ -116,16 +149,19 @@ export default {
       }
     }
   }
+
   .ref-goods {
     background-color: #fff;
     margin-top: 20px;
     position: relative;
+
     .head {
       .xtx-more {
         position: absolute;
         top: 20px;
         right: 20px;
       }
+
       .tag {
         text-align: center;
         color: #999;
@@ -134,6 +170,7 @@ export default {
         top: -20px;
       }
     }
+
     .body {
       display: flex;
       justify-content: flex-start;

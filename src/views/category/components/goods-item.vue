@@ -1,15 +1,21 @@
 <template>
   <RouterLink to='/' class='goods-item'>
-    <img src='http://zhoushugang.gitee.io/erabbit-client-pc-static/uploads/fresh_goods_2.jpg' alt=''>
-    <p class='name ellipsis'>红功夫 麻辣小龙虾 19.99/500g 实惠到家</p>
-    <p class='desc ellipsis'>火锅食材</p>
-    <p class='price'>&yen;19.99</p>
+    <img v-lazy='data.picture' alt=''>
+    <p class='name ellipsis'>{{ data.name }}</p>
+    <p class='desc ellipsis'>{{ data.desc }}</p>
+    <p class='price'>&yen;{{ data.price }}</p>
   </RouterLink>
 </template>
 
 <script>
 export default {
-  name: 'GoodsItem'
+  name: 'GoodsItem',
+  props: {
+    data: {
+      type: Object,
+      default: () => ({})
+    }
+  }
 }
 </script>
 
