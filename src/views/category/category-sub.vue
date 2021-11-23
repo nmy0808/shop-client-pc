@@ -19,6 +19,7 @@
           <GoodsItem :data='item' />
         </li>
       </ul>
+      <c-infinite-loading v-bind='loadState' @infinite='handleInfinite' />
     </div>
   </div>
 </template>
@@ -32,10 +33,11 @@ import SubBread from '@/views/category/components/sub-bread'
 import SubFilter from '@/views/category/components/sub-filter'
 import GoodsItem from '@/views/category/components/goods-item'
 import SubSort from '@/views/category/components/sub-sort'
+import CInfiniteLoading from '@/components/library/c-infinite-loading'
 
 export default {
   name: 'categorySub',
-  components: { SubSort, GoodsItem, SubFilter, SubBread },
+  components: { CInfiniteLoading, SubSort, GoodsItem, SubFilter, SubBread },
   setup() {
     const store = useStore()
     const router = useRouter()
@@ -43,8 +45,13 @@ export default {
     const id = computed(() => route.params.id)
     const categoryData = ref({})
     const goodList = ref([])
+    // 加载状态
+    const loadState = reactive({
+      loading: false,
+      finished: false
+    })
     // 查询条件
-    const searchParams = reactive({
+    const searchParams = ref({
       categoryId: id.value,
       page: 1,
       pageSize: 20
@@ -56,25 +63,53 @@ export default {
     }
     // api 获取商品列表
     const getGoodsData = async (searchParams) => {
-      const { items } = await getGoodsByFilterApi(searchParams)
-      goodList.value = items
+      if (loadState.finished) return
+      loadState.loading = true
+      const { items, page, pages } = await getGoodsByFilterApi(searchParams)
+      goodList.value.push(...items)
+      loadState.loading = false
+      searchParams.page++
+      if (page > pages) {
+        loadState.finished = true
+      }
     }
     // 筛选条件改变事件
     const handleFilterChange = (filterSearch) => {
       Object.assign(searchParams, filterSearch)
     }
     //
+    const handleInfinite = () => {
+      if (loadState.loading) return
+      getGoodsData(searchParams.value)
+    }
+    //
     watchEffect(() => {
       if (route.name !== 'categorySub') return
       if (!id.value || id.value === 'undefined') return
+      goodList.value = []
+      searchParams.value.page = 1
+      loadState.finished = false
+      searchParams.value = {
+        categoryId: id.value,
+        page: 1,
+        pageSize: 20
+      }
       getSubCategoryData()
     })
     watch(searchParams, () => {
       if (route.name !== 'categorySub') return
       if (!id.value || id.value === 'undefined') return
-      getGoodsData(searchParams)
-    }, { immediate: true })
-    return { id, categoryData, handleFilterChange, goodList }
+      getGoodsData(searchParams.value)
+    })
+    return {
+      id,
+      loadState,
+      categoryData,
+      handleFilterChange,
+      goodList,
+      handleInfinite,
+      searchParams
+    }
   }
 }
 </script>
