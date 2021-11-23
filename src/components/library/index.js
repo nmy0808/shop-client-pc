@@ -1,15 +1,13 @@
-// 组件
-import CSkeleton from './c-skeleton'
-import CCarousel from './c-carousel'
-import CMore from './c-more'
 // 指令
 import lazy from './lazy.directive'
 
-const components = [CSkeleton, CCarousel, CMore]
+const importFn = require.context('./', false, /\.vue$/)
+const components = importFn.keys().map(path => importFn(path).default)
+
 const directives = { lazy }
 
 export default {
-  install (app) {
+  install(app) {
     // 注册组件
     components.forEach(it => {
       app.component(it.name, it)
