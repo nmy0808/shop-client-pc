@@ -12,11 +12,11 @@
     <!-- 结果区域 -->
     <div class='goods-list'>
       <!-- 排序 -->
-      <SubSort />
+      <SubSort @sort-change='handleFilterChange' />
       <!-- 列表 -->
       <ul>
-        <li v-for='i in 20' :key='i'>
-          <GoodsItem :goods='{}' />
+        <li v-for='item in goodList' :key='item.id'>
+          <GoodsItem :data='item' />
         </li>
       </ul>
     </div>
@@ -24,10 +24,10 @@
 </template>
 
 <script>
-import { computed, onUnmounted, ref, watchEffect } from 'vue'
+import { computed, onUnmounted, reactive, ref, watch, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute, useRouter } from 'vue-router'
-import { getSubCategoryApi } from '@/api'
+import { getGoodsByFilterApi, getSubCategoryApi } from '@/api'
 import SubBread from '@/views/category/components/sub-bread'
 import SubFilter from '@/views/category/components/sub-filter'
 import GoodsItem from '@/views/category/components/goods-item'
@@ -42,27 +42,39 @@ export default {
     const route = useRoute()
     const id = computed(() => route.params.id)
     const categoryData = ref({})
-    const searchParams = {}
+    const goodList = ref([])
+    // 查询条件
+    const searchParams = reactive({
+      categoryId: id.value,
+      page: 1,
+      pageSize: 20
+    })
     // api 获取二级类目-筛选条件
     const getSubCategoryData = async () => {
       const data = await getSubCategoryApi(id.value)
       categoryData.value = data
     }
+    // api 获取商品列表
+    const getGoodsData = async (searchParams) => {
+      const { items } = await getGoodsByFilterApi(searchParams)
+      goodList.value = items
+    }
     // 筛选条件改变事件
     const handleFilterChange = (filterSearch) => {
       Object.assign(searchParams, filterSearch)
     }
-    // 排序改变事件
     //
-    const stop = watchEffect(() => {
+    watchEffect(() => {
       if (route.name !== 'categorySub') return
       if (!id.value || id.value === 'undefined') return
       getSubCategoryData()
     })
-    onUnmounted(() => {
-      stop()
-    })
-    return { id, categoryData, handleFilterChange }
+    watch(searchParams, () => {
+      if (route.name !== 'categorySub') return
+      if (!id.value || id.value === 'undefined') return
+      getGoodsData(searchParams)
+    }, { immediate: true })
+    return { id, categoryData, handleFilterChange, goodList }
   }
 }
 </script>

@@ -1,14 +1,22 @@
 <template>
   <div class='sub-sort'>
     <div class='sort'>
-      <a href='javascript:;'>默认排序</a>
-      <a href='javascript:;'>最新商品</a>
-      <a href='javascript:;'>最高人气</a>
-      <a href='javascript:;'>评论最多</a>
-      <a href='javascript:;'>
+      <a href='javascript:;' :class='{active: subSortSearch.sortField === null}'
+         @click='handleFieldChange(null)'>默认排序</a>
+      <a href='javascript:;' :class='{active: subSortSearch.sortField === "publishTime"}'
+         @click='handleFieldChange("publishTime")'>最新商品</a>
+      <a href='javascript:;' :class='{active: subSortSearch.sortField === "orderNum"}'
+         @click='handleFieldChange("orderNum")'>最高人气</a>
+      <a href='javascript:;' :class='{active: subSortSearch.sortField === "evaluateNum"}'
+         @click='handleFieldChange("evaluateNum")'>评论最多</a>
+      <a href='javascript:;' :class='{active: subSortSearch.sortField === "price"}' @click='handleFieldChange("price")'>
         价格排序
-        <i class='arrow up' />
-        <i class='arrow down' />
+        <i class='arrow up'
+           :class='{active: subSortSearch.sortMethod === "desc"}'
+        />
+        <i class='arrow down'
+           :class='{active: subSortSearch.sortMethod === "asc"}'
+        />
       </a>
     </div>
     <div class='check'>
@@ -19,18 +27,41 @@
 </template>
 <script>
 import CCheckbox from '@/components/library/c-checkbox'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 
 export default {
   name: 'SubSort',
   components: { CCheckbox },
-  setup() {
+  emits: ['sort-change'],
+  setup(props, { emit }) {
     const subSortSearch = reactive({
       inventory: false, // 是否有库存
-      onlyDiscount: false // 只显示特惠
+      onlyDiscount: false, // 只显示特惠
+      sortField: null, // 排序字段，取值范围：[publishTime,orderNum,price,evaluateNum]
+      sortMethod: null // 排序规则，asc为正序，desc为倒序，默认为desc
+    })
+    const PRICE_TYPE = ['desc', 'asc']
+    const handleFieldChange = (rule) => {
+      if (rule === 'price' && subSortSearch.sortField === 'price') {
+        const method = PRICE_TYPE.find(item => item !== subSortSearch.sortMethod)
+        subSortSearch.sortMethod = method
+      }
+      if (rule === 'price' && subSortSearch.sortField !== 'price') {
+        subSortSearch.sortMethod = 'asc'
+      }
+      if (rule !== 'price') {
+        console.log('null')
+        subSortSearch.sortMethod = null
+      }
+      subSortSearch.sortField = rule
+    }
+    // 监听排序对象改变
+    watch(subSortSearch, () => {
+      emit('sort-change', JSON.parse(JSON.stringify(subSortSearch)))
     })
     return {
-      subSortSearch
+      subSortSearch,
+      handleFieldChange
     }
   }
 }
@@ -72,7 +103,7 @@ export default {
           border-bottom-color: #bbb;
 
           &.active {
-            border-bottom-color: @mainColor;
+            border-bottom-color: #fff;
           }
         }
 
@@ -81,7 +112,7 @@ export default {
           border-top-color: #bbb;
 
           &.active {
-            border-top-color: @mainColor;
+            border-top-color: #fff;
           }
         }
       }
