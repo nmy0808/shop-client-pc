@@ -76,6 +76,8 @@ export default {
     // 筛选条件改变事件
     const handleFilterChange = (filterSearch) => {
       Object.assign(searchParams, filterSearch)
+      searchParams.value.page = 1
+      goodList.value = []
     }
     //
     const handleInfinite = () => {
