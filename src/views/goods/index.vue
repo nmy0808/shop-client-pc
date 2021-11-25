@@ -2,11 +2,15 @@
   <div class='xtx-goods-page'>
     <div class='container'>
       <!-- 面包屑 -->
-      <CBread>
+      <CBread v-if='goodDetail'>
         <CBreadItem to='/'>首页</CBreadItem>
-        <CBreadItem to='/'>手机</CBreadItem>
-        <CBreadItem to='/'>华为</CBreadItem>
-        <CBreadItem to='/'>p30</CBreadItem>
+        <CBreadItem :to='{name:"category", params: {id:goodDetail.categories[1].id }}'>{{ goodDetail.categories[1].name
+          }}
+        </CBreadItem>
+        <CBreadItem :to='{name:"categorySub", params: {id:goodDetail.categories[0].id }}'>
+          {{ goodDetail.categories[0].name }}
+        </CBreadItem>
+        <CBreadItem>{{ goodDetail.name }}</CBreadItem>
       </CBread>
       <!-- 商品信息 -->
       <div class='goods-info'>
@@ -57,19 +61,26 @@ import GoodsSku from '@/components/library/goods-sku'
 import GoodsTabs from '@/views/goods/components/goods-tabs'
 import GoodsHot from '@/views/goods/components/goods-hot'
 import GoodsWarn from '@/views/goods/components/goods-warn'
-import { watchEffect } from 'vue'
-import { getGoodEvaluateApi, getGoodEvaluatePageApi } from '@/api'
+import { computed, reactive, ref, watchEffect } from 'vue'
+import { getGoodDetailApi, getGoodEvaluateApi, getGoodEvaluatePageApi } from '@/api'
+import { useRoute } from 'vue-router'
 
 export default {
   name: 'GoodsPage',
   components: { GoodsWarn, GoodsHot, GoodsTabs, GoodsSku, GoodName, GoodsSales, GoodsImage, GoodsRelevant },
   setup() {
+    const route = useRoute()
+    const goodDetail = ref(null)
+    const id = ref(null)
     watchEffect(async () => {
-      const data = await getGoodEvaluateApi({ id: 3488051 })
-      console.log(data)
-      const data2 = await getGoodEvaluatePageApi({ id: 3488051 })
-      console.log(data2)
+      id.value = route.params.id
+      if (route.name !== 'product' || !id.value) return
+      goodDetail.value = await getGoodDetailApi({ id: id.value })
+      console.log(goodDetail.value)
     })
+    return {
+      goodDetail
+    }
   }
 }
 </script>
