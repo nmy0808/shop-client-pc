@@ -57,10 +57,20 @@ import GoodsSku from '@/components/library/goods-sku'
 import GoodsTabs from '@/views/goods/components/goods-tabs'
 import GoodsHot from '@/views/goods/components/goods-hot'
 import GoodsWarn from '@/views/goods/components/goods-warn'
+import { watchEffect } from 'vue'
+import { getGoodEvaluateApi, getGoodEvaluatePageApi } from '@/api'
 
 export default {
   name: 'GoodsPage',
-  components: { GoodsWarn, GoodsHot, GoodsTabs, GoodsSku, GoodName, GoodsSales, GoodsImage, GoodsRelevant }
+  components: { GoodsWarn, GoodsHot, GoodsTabs, GoodsSku, GoodName, GoodsSales, GoodsImage, GoodsRelevant },
+  setup() {
+    watchEffect(async () => {
+      const data = await getGoodEvaluateApi({ id: 3488051 })
+      console.log(data)
+      const data2 = await getGoodEvaluatePageApi({ id: 3488051 })
+      console.log(data2)
+    })
+  }
 }
 </script>
 
