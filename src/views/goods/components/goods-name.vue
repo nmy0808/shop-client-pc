@@ -1,9 +1,9 @@
 <template>
-  <p className='g-name'>2件装 粉釉花瓣心意点缀 点心盘*2 碟子盘子</p>
-  <p className='g-desc'>花瓣造型干净简约 多功能使用堆叠方便</p>
+  <p className='g-name'>{{ goodDetail.name }}</p>
+  <p className='g-desc'>{{ goodDetail.desc }}</p>
   <p className='g-price'>
-    <span>108.00</span>
-    <span>199.00</span>
+    <span>{{ goodDetail.price }}</span>
+    <span>{{ goodDetail.oldPrice }}</span>
   </p>
   <div className='g-service'>
     <dl>
@@ -13,7 +13,7 @@
     <dl>
       <dt>配送</dt>
       <dd>至
-        <c-city></c-city>
+        <c-city :fullLocation='fullLocation' @change='handleCityChange'></c-city>
       </dd>
     </dl>
     <dl>
@@ -29,9 +29,46 @@
 </template>
 
 <script>
+import { inject, ref } from 'vue'
+
 export default {
   name: 'GoodName',
-  components: {}
+  components: {},
+  props: {
+    goodDetail: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  setup() {
+    // 默认地址
+    const provinceCode = ref('110000')
+    const cityCode = ref('119900')
+    const countyCode = ref('110101')
+    const fullLocation = ref('北京市 市辖区 东城区')
+    const goodDetail = inject('goodDetail')
+    // 取出用户收货地址中默认的地址给四个数据赋值 (已登录)
+    if (goodDetail.userAddresses) {
+      const defaultAddr = goodDetail.userAddresses.find(addr => addr.isDefault === 1)
+      if (defaultAddr) {
+        provinceCode.value = defaultAddr.provinceCode
+        cityCode.value = defaultAddr.cityCode
+        countyCode.value = defaultAddr.countyCode
+        fullLocation.value = defaultAddr.fullLocation
+      }
+    }
+    // 接收到选中的city数据
+    const handleCityChange = (result) => {
+      provinceCode.value = result.provinceCode
+      cityCode.value = result.cityCode
+      countyCode.value = result.countyCode
+      fullLocation.value = result.fullLocation
+    }
+    return {
+      handleCityChange,
+      fullLocation
+    }
+  }
 }
 </script>
 
