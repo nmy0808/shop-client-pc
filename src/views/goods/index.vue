@@ -21,7 +21,7 @@
         </div>
         <div class='spec'>
           <!--标题,城市-->
-          <good-name></good-name>
+          <good-name :good-detail='goodDetail'></good-name>
           <goods-sku></goods-sku>
           <c-numbox></c-numbox>
           <c-button type='primary' style='margin-top: 20px;'>加入购物车</c-button>
@@ -61,7 +61,7 @@ import GoodsSku from '@/components/library/goods-sku'
 import GoodsTabs from '@/views/goods/components/goods-tabs'
 import GoodsHot from '@/views/goods/components/goods-hot'
 import GoodsWarn from '@/views/goods/components/goods-warn'
-import { computed, reactive, ref, watchEffect } from 'vue'
+import { computed, provide, reactive, ref, watchEffect } from 'vue'
 import { getGoodDetailApi, getGoodEvaluateApi, getGoodEvaluatePageApi } from '@/api'
 import { useRoute } from 'vue-router'
 
@@ -72,6 +72,7 @@ export default {
     const route = useRoute()
     const goodDetail = ref(null)
     const id = ref(null)
+    provide('goodDetail', goodDetail)
     watchEffect(async () => {
       id.value = route.params.id
       if (route.name !== 'product' || !id.value) return
