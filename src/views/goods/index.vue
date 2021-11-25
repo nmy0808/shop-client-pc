@@ -1,8 +1,8 @@
 <template>
   <div class='xtx-goods-page'>
-    <div class='container'>
+    <div class='container' v-if='goodDetail'>
       <!-- 面包屑 -->
-      <CBread v-if='goodDetail'>
+      <CBread>
         <CBreadItem to='/'>首页</CBreadItem>
         <CBreadItem :to='{name:"category", params: {id:goodDetail.categories[1].id }}'>{{ goodDetail.categories[1].name
           }}
@@ -16,7 +16,7 @@
       <div class='goods-info'>
         <div class='media'>
           <!--商品图片-->
-          <goods-image></goods-image>
+          <goods-image :images='goodDetail.mainPictures'></goods-image>
           <goods-sales></goods-sales>
         </div>
         <div class='spec'>
