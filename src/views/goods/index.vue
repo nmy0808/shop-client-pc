@@ -77,7 +77,7 @@ export default {
       id.value = route.params.id
       if (route.name !== 'product' || !id.value) return
       goodDetail.value = await getGoodDetailApi({ id: id.value })
-      console.log(goodDetail.value)
+      // console.log(goodDetail.value)
     })
     return {
       goodDetail

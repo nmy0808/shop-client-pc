@@ -2,7 +2,7 @@ const env = process.env.NODE_ENV || 'production'
 
 const EnvConfig = {
   development: {
-    baseURL: '//pcapi-xiaotuxian-front-devtest.itheima.net',
+    baseURL: 'https://apipc-xiaotuxian-front.itheima.net',
     mockURL: 'https://mock.boxuegu.com/mock/1175'
   },
   test: {

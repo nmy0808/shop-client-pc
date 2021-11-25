@@ -4,24 +4,105 @@
     <dl v-for='item in specs' :key='item.name'>
       <dt>{{ item.name }}</dt>
       <dd>
-        <template v-for='val in item.values' :key='val.name'>
-          <img v-if='val.picture' :src='val.picture' :title='val.name' />
-          <span v-else class=''>{{ val.name }}</span>
+        <template
+          v-for='val in item.values'
+          :key='val.name'>
+          <img
+            @click='handleSpecSelect(item,val)'
+            :class='{selected:val.selected, disabled:val.disabled}'
+            v-if='val.picture'
+            :src='val.picture' :title='val.name'
+          />
+          <span
+            @click='handleSpecSelect(item,val)'
+            :class='{selected:val.selected, disabled:val.disabled}'
+            v-else>
+            {{ val.name }}
+          </span>
         </template>
       </dd>
     </dl>
   </div>
 </template>
 <script>
-import { computed, inject } from 'vue'
+import { computed, inject, reactive, ref } from 'vue'
+import bwPowerSet from '@/vender/power-set'
 
+const SPLITER = '☆'
 export default {
   name: 'GoodsSku',
   setup() {
     const goodDetail = inject('goodDetail')
     const specs = goodDetail.value.specs
+    const skus = goodDetail.value.skus
+    // sku路径字典
+    const calcSkus = reactive({})
+    // 当前选中的规格
+    const filterSelected = reactive([])
+    // 初始化sku路径字典
+    initSkuMap()
+    //
+
+    // const a = bwPowerSet([1, 2, 3])
+    // 事件: 选择规格
+    const handleSpecSelect = (group, item) => {
+      const index = specs.findIndex(it => it.name === group.name)
+      if (item.disabled) {
+        return
+      }
+      if (item.selected) {
+        item.selected = false
+        filterSelected[index] = undefined
+        judgeSpecState()
+        return
+      }
+      // 排它
+      group.values.forEach(it => {
+        it.selected = false
+      })
+      item.selected = true
+      filterSelected[index] = item.name
+      judgeSpecState()
+    }
+
+    // 初始化sku路径字典
+    function initSkuMap() {
+      const arr = skus.filter(item => item.inventory > 0)
+      arr.forEach(item => {
+        const target = item.specs.map(it => it.valueName)
+        const calc = bwPowerSet(target)
+        calc.forEach(it => {
+          const key = it.join(SPLITER)
+          if (Array.isArray(calcSkus[key])) {
+            calcSkus[key].push(item.id)
+          } else {
+            calcSkus[key] = [item.id]
+          }
+        })
+      })
+      judgeSpecState()
+    }
+
+    // 判断当前所有规格的状态
+    function judgeSpecState() {
+      specs.forEach((item, index) => {
+        const cp = [...filterSelected]
+        item.values.forEach(it => {
+          if (it.selected) return
+          cp[index] = it.name
+          const key = cp.filter(cp => cp).join(SPLITER)
+          if (calcSkus[key]) {
+            it.disabled = false
+          } else {
+            it.disabled = true
+          }
+        })
+      })
+    }
+
     return {
-      specs
+      specs,
+      handleSpecSelect
     }
   }
 }
