@@ -22,7 +22,7 @@
         <div class='spec'>
           <!--标题,城市-->
           <good-name :good-detail='goodDetail'></good-name>
-          <goods-sku></goods-sku>
+          <goods-sku :good-detail='goodDetail' sku-id='1369155872197971970' @change='handleChangeSku'></goods-sku>
           <c-numbox></c-numbox>
           <c-button type='primary' style='margin-top: 20px;'>加入购物车</c-button>
         </div>
@@ -79,8 +79,14 @@ export default {
       goodDetail.value = await getGoodDetailApi({ id: id.value })
       // console.log(goodDetail.value)
     })
+    const handleChangeSku = (sku) => {
+      goodDetail.value.price = sku.price
+      goodDetail.value.oldPrice = sku.oldPrice
+      goodDetail.value.inventory = sku.inventory
+    }
     return {
-      goodDetail
+      goodDetail,
+      handleChangeSku
     }
   }
 }

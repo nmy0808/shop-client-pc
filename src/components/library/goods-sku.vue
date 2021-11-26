@@ -31,19 +31,28 @@ import bwPowerSet from '@/vender/power-set'
 const SPLITER = '☆'
 export default {
   name: 'GoodsSku',
-  setup() {
-    const goodDetail = inject('goodDetail')
-    const specs = goodDetail.value.specs
-    const skus = goodDetail.value.skus
+  props: {
+    skuId: {
+      type: String,
+      default: ''
+    },
+    goodDetail: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  setup(props, { emit }) {
+    // eslint-disable-next-line vue/no-setup-props-destructure
+    const { specs, skus } = props.goodDetail
     // sku路径字典
     const calcSkus = reactive({})
     // 当前选中的规格
     const filterSelected = reactive([])
     // 初始化sku路径字典
     initSkuMap()
-    //
+    // 初始化prop的skuid
+    initSkuSelectedById()
 
-    // const a = bwPowerSet([1, 2, 3])
     // 事件: 选择规格
     const handleSpecSelect = (group, item) => {
       const index = specs.findIndex(it => it.name === group.name)
@@ -63,6 +72,32 @@ export default {
       item.selected = true
       filterSelected[index] = item.name
       judgeSpecState()
+      // 向父级传值
+      if (specs.length === filterSelected.length) {
+        const skuIds = calcSkus[filterSelected.join(SPLITER)]
+        if (!skuIds) return
+        const skuId = skuIds[0]
+        const sku = skus.find(it => it.id === skuId)
+        emit('change', {
+          skuId: sku.id,
+          price: sku.price,
+          oldPrice: sku.oldPrice,
+          inventory: sku.inventory,
+          specsText: sku.specs.reduce((p, n) => `${p} ${n.name}：${n.valueName}`, '').replace(' ', '')
+        })
+      }
+    }
+
+    // 如果用户传入了skuId, 则初始化默认选中
+    function initSkuSelectedById() {
+      if (props.skuId) {
+        const sku = skus.find(it => it.id === props.skuId)
+        const currentSpecs = sku.specs
+        currentSpecs.forEach(it => {
+          const target = specs.find(s => s.name === it.name).values.find(val => val.name === it.valueName)
+          target.selected = true
+        })
+      }
     }
 
     // 初始化sku路径字典
