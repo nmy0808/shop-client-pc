@@ -22,13 +22,13 @@
         <div class='spec'>
           <!--标题,城市-->
           <good-name :good-detail='goodDetail'></good-name>
-          <goods-sku :good-detail='goodDetail' sku-id='1369155872197971970' @change='handleChangeSku'></goods-sku>
+          <goods-sku :good-detail='goodDetail' @change='handleChangeSku'></goods-sku>
           <c-numbox label='数量' v-model='num' :max='goodDetail.inventory'></c-numbox>
           <c-button type='primary' style='margin-top: 20px;'>加入购物车</c-button>
         </div>
       </div>
       <!-- 商品推荐 -->
-      <GoodsRelevant />
+      <GoodsRelevant/>
       <!-- 商品详情 -->
       <div class='goods-footer'>
         <div class='goods-article'>
@@ -78,7 +78,7 @@ export default {
     // 初始化请求数据
     watchEffect(async () => {
       id.value = route.params.id
-      if (route.name !== 'product' || !id.value) return
+      if (route.name !== 'product' || id.value === 'undefined' || !id.value) return
       goodDetail.value = await getGoodDetailApi({ id: id.value })
       // console.log(goodDetail.value)
     })

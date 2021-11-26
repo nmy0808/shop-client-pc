@@ -1,18 +1,30 @@
 <template>
-  <div class='c-carousel' @mouseleave="handleAutoPlay" @mouseenter="handlePausePlay">
-    <ul class="carousel-body">
-      <!--      fade-->
-      <li class="carousel-item" :class="{fade:currentIndex === index}" v-for="(item,index) in list" :key="item.id">
-        <RouterLink to="/">
-          <img :src="item.imgUrl">
-        </RouterLink>
-      </li>
+  <div class='c-carousel' @mouseleave='handleAutoPlay' @mouseenter='handlePausePlay'>
+    <ul class='carousel-body'>
+      <template v-if='type === "multiple"'>
+        <div class='slider'>
+          <RouterLink v-for='goods in list[currentIndex]' :key='goods.id'
+                      :to='{name:"product", params: {id: goods.id}}'>
+            <img :src='goods.picture' alt=''>
+            <p class='name ellipsis'>{{ goods.name }}</p>
+            <p class='price'>&yen;{{ goods.price }}</p>
+          </RouterLink>
+        </div>
+      </template>
+      <template>
+        <!--      fade-->
+        <li class='carousel-item' :class='{fade:currentIndex === index}' v-for='(item,index) in list' :key='item.id'>
+          <RouterLink to='/'>
+            <img :src='item.imgUrl'>
+          </RouterLink>
+        </li>
+      </template>
     </ul>
-    <a href="javascript:;" @click="handlePrev" class="carousel-btn prev"><i class="iconfont icon-angle-left"></i></a>
-    <a href="javascript:;" @click="handleNext" class="carousel-btn next"><i class="iconfont icon-angle-right"></i></a>
-    <div class="carousel-indicator">
-      <span @click="handleSkip(index)" :class="{active:index === currentIndex}" v-for="(item,index) in list"
-            :key="item.id"></span>
+    <a href='javascript:;' @click='handlePrev' class='carousel-btn prev'><i class='iconfont icon-angle-left'></i></a>
+    <a href='javascript:;' @click='handleNext' class='carousel-btn next'><i class='iconfont icon-angle-right'></i></a>
+    <div class='carousel-indicator'>
+      <span @click='handleSkip(index)' :class='{active:index === currentIndex}' v-for='(item,index) in list'
+            :key='item.id'></span>
     </div>
   </div>
 </template>
@@ -24,9 +36,13 @@ export default {
   name: 'CCarousel',
   props: {
     list: Array,
-    default: []
+    type: String,
+    auto: {
+      type: Boolean,
+      default: true
+    }
   },
-  setup (props) {
+  setup(props) {
     const currentIndex = ref(0)
     let timer = null
     const handleNext = () => {
@@ -41,6 +57,7 @@ export default {
       currentIndex.value = index
     }
     const handleAutoPlay = () => {
+      if (!props.auto) return
       clearInterval(timer)
       timer = setInterval(() => {
         handleNext()
@@ -63,7 +80,7 @@ export default {
   }
 }
 </script>
-<style scoped lang="less">
+<style scoped lang='less'>
 .c-carousel {
   width: 100%;
   height: 100%;
@@ -106,6 +123,7 @@ export default {
       width: 100%;
       text-align: center;
       margin-left: 100px;
+
       span {
         display: inline-block;
         width: 12px;
@@ -146,6 +164,36 @@ export default {
 
       &.next {
         right: 20px;
+      }
+    }
+  }
+
+  // 轮播商品
+  .slider {
+    display: flex;
+    justify-content: space-around;
+    padding: 0 40px;
+
+    > a {
+      width: 240px;
+      text-align: center;
+
+      img {
+        padding: 20px;
+        width: 230px !important;
+        height: 230px !important;
+      }
+
+      .name {
+        font-size: 16px;
+        color: #666;
+        padding: 0 40px;
+      }
+
+      .price {
+        font-size: 16px;
+        color: @priceColor;
+        margin-top: 15px;
       }
     }
   }
