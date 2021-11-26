@@ -1,21 +1,30 @@
 <template>
   <div className='goods-tabs'>
     <nav>
-      <a className='active' href='javascript:;'>商品详情</a>
-      <a href='javascript:;'>商品评价<span>(500+)</span></a>
+      <a @click='currentIndex=0' :class='{active:currentIndex === 0}' href='javascript:;'>商品详情</a>
+      <a @click='currentIndex=1' :class='{active:currentIndex === 1}' href='javascript:;'>商品评价<span>(500+)</span></a>
     </nav>
     <!-- 切换内容的地方 -->
-    <component :is='`GoodsComment`'/>
+    <component :is='panels[currentIndex]' />
   </div>
 </template>
 <script>
 import GoodsDetail from '@/views/goods/components/goods-detail'
 import GoodsComment from '@/views/goods/components/goods-comment'
+import { ref } from 'vue'
 
 export default {
   name: 'GoodsTabs',
   // eslint-disable-next-line vue/no-unused-components
-  components: { GoodsComment, GoodsDetail }
+  components: { GoodsComment, GoodsDetail },
+  setup() {
+    const currentIndex = ref(0)
+    const panels = ['GoodsDetail', 'GoodsComment']
+    return {
+      currentIndex,
+      panels
+    }
+  }
 }
 </script>
 <style lang='less' scoped>

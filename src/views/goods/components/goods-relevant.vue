@@ -5,7 +5,7 @@
       <span class='title'>同类商品推荐</span>
     </div>
     <!-- 此处使用改造后的c-carousel.vue -->
-    <c-carousel :list='list' type='multiple' />
+    <c-carousel :list='list' type='multiple' :auto='false'/>
   </div>
 </template>
 

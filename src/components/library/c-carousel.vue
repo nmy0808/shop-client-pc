@@ -5,7 +5,7 @@
         <div class='slider'>
           <RouterLink v-for='goods in list[currentIndex]' :key='goods.id'
                       :to='{name:"product", params: {id: goods.id}}'>
-            <img :src='goods.picture' alt=''>
+            <img v-lazy='goods.picture' alt=''>
             <p class='name ellipsis'>{{ goods.name }}</p>
             <p class='price'>&yen;{{ goods.price }}</p>
           </RouterLink>
