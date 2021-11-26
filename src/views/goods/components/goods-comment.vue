@@ -45,7 +45,7 @@
             {{ item.content }}
           </div>
           <!--评论图片浏览组件-->
-          <goods-comment-image v-if='1'></goods-comment-image>
+          <goods-comment-image v-if='item.pictures.length' :pictures='item.pictures'></goods-comment-image>
           <div class='time'>
             <span>{{ item.createTime }}</span>
             <span class='zan'><i class='iconfont icon-dianzan'></i>{{ item.praiseCount }}</span>
@@ -153,6 +153,7 @@ export default {
       const { counts, items, page, pages } = await getGoodEvaluatePageApi({ id: id.value, ...param, ...pager })
       pager.total = counts
       list.value = items
+      console.log(items)
     }
 
     function toSpecs(spec) {
