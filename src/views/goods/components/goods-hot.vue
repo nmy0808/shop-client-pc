@@ -38,7 +38,6 @@ export default {
       const name = route.name
       if (!id || id === 'undefined' || name !== 'product') return
       list.value = await getGoodHotApi()
-      console.log(list.value)
     })
     return { title, list }
   }

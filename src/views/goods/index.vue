@@ -28,7 +28,7 @@
         </div>
       </div>
       <!-- 商品推荐 -->
-      <GoodsRelevant/>
+      <GoodsRelevant />
       <!-- 商品详情 -->
       <div class='goods-footer'>
         <div class='goods-article'>
@@ -77,10 +77,11 @@ export default {
     const num = ref(1)
     // 初始化请求数据
     watchEffect(async () => {
+      goodDetail.value = null
+      num.value = 1
       id.value = route.params.id
       if (route.name !== 'product' || id.value === 'undefined' || !id.value) return
       goodDetail.value = await getGoodDetailApi({ id: id.value })
-      // console.log(goodDetail.value)
     })
     // 事件: sku改变触发
     const handleChangeSku = (sku) => {

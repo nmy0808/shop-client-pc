@@ -1,6 +1,6 @@
 <template>
   <div class='xtx-numbox'>
-    <div v-if='label' class='label'>{{label}}</div>
+    <div v-if='label' class='label'>{{ label }}</div>
     <div class='numbox'>
       <a href='javascript:;' @click='handleIncrement(-1)'>-</a>
       <input type='text' readonly :value='modelValue'>
@@ -20,7 +20,8 @@ export default {
       default: 1
     },
     max: {
-      type: Number
+      type: Number,
+      default: 9999
     },
     modelValue: {
       type: Number,
