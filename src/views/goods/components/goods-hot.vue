@@ -1,17 +1,23 @@
 <template>
   <div class='goods-hot'>
     <h3>{{ title }}</h3>
-    <div v-if='[]'>
-      <GoodsItem v-for='item in []' :key='item.id' :goods='item' />
+    <div v-if='list.length'>
+      <GoodsItem v-for='item in list' :key='item.id' :data='item' />
+<!--      <div v-for='item in list' :key='item.id' :goods='item' >-->
+<!--        {{ item }}-->
+<!--      </div>-->
     </div>
   </div>
 </template>
 <script>
-import { computed } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import GoodsItem from '@/views/category/components/goods-item'
+import { getGoodHotApi } from '@/api'
+import { useRoute } from 'vue-router'
 
 export default {
   name: 'GoodsHot',
+  // eslint-disable-next-line vue/no-unused-components
   components: { GoodsItem },
   props: {
     type: {
@@ -24,7 +30,17 @@ export default {
     const title = computed(() => {
       return titleObj[props.type]
     })
-    return { title }
+    const route = useRoute()
+    const list = ref([])
+    watchEffect(async () => {
+      list.value = []
+      const id = route.params.id
+      const name = route.name
+      if (!id || id === 'undefined' || name !== 'product') return
+      list.value = await getGoodHotApi()
+      console.log(list.value)
+    })
+    return { title, list }
   }
 }
 </script>
