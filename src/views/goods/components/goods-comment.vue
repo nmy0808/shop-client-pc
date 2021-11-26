@@ -53,11 +53,16 @@
         </div>
       </div>
     </div>
+    <c-pagination
+      @current-change='handleChangePage'
+      :current-page='param.page'
+      :page-size='param.pageSize'
+      :total='pageTotal' />
   </div>
 </template>
 <script>
 import GoodsCommentImage from '@/views/goods/components/goods-comment-image'
-import { inject, reactive, ref, watchEffect } from 'vue'
+import { inject, reactive, ref, watch, watchEffect } from 'vue'
 import { getGoodEvaluateApi, getGoodEvaluatePageApi } from '@/api'
 import { useRoute } from 'vue-router'
 
@@ -74,14 +79,15 @@ export default {
       praisePercent: '100%',
       salesCount: ''
     })
-    let param = {
+    const param = reactive({
       page: 1,
       pageSize: 10,
       hasPicture: null,
       tag: null, // 标签
       sortField: null, // 排序字段，可选值范围[praiseCount,createTime]
       sortMethod: 'desc'// 排序方法，可选值范围[asc,desc],默认为desc
-    }
+    })
+    const pageTotal = ref(0)
     // 评论列表
     const list = ref([])
     // 当前激活的tag筛选
@@ -114,15 +120,21 @@ export default {
       // 请求数据
       getGoodEvaluateList()
     }
-    watchEffect(() => {
+    // 事件: 分页
+    const handleChangePage = (page) => {
+      param.page = page
+      getGoodEvaluateList()
+    }
+    watch(() => route.params.id, () => {
       id.value = route.params.id
       if (route.name !== 'product' || id.value === 'undefined' || !id.value) return
-      param = { page: 1, pageSize: 10 }
+      // 初始化请求参数
+      initParam()
       goodInfo.value = null
       list.value = []
       getGoodEvaluate()
       getGoodEvaluateList()
-    })
+    }, { immediate: true })
 
     // 获取评价参数
     async function getGoodEvaluate() {
@@ -133,7 +145,7 @@ export default {
     // 分页获取评价列表
     async function getGoodEvaluateList() {
       const { counts, items, page, pages } = await getGoodEvaluatePageApi({ id: id.value, ...param })
-      // items.unshift({})
+      pageTotal.value = counts
       list.value = items
     }
 
@@ -141,15 +153,31 @@ export default {
       return spec.reduce((p, c) => `${p} ${c.name}:${c.nameValue}`, '').trim()
     }
 
+    // 初始化请求参数
+    function initParam() {
+      const initial = {
+        page: 1,
+        pageSize: 10,
+        hasPicture: null,
+        tag: null, // 标签
+        sortField: null, // 排序字段，可选值范围[praiseCount,createTime]
+        sortMethod: 'desc'// 排序方法，可选值范围[asc,desc],默认为desc
+      }
+      Object.assign(param, initial)
+    }
+
     return {
+      param,
       tagActiveIndex,
       sortActiveIndex,
       goods,
       goodInfo,
+      pageTotal,
       list,
       toSpecs,
       handleSelectedTag,
-      handSort
+      handSort,
+      handleChangePage
     }
   }
 }
