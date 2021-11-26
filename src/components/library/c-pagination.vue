@@ -14,14 +14,17 @@ import { computed } from 'vue'
 export default {
   name: 'CPagination',
   props: {
+    // 当前页
     currentPage: {
       type: Number,
       default: 1
     },
+    // 多少数据/页
     pageSize: {
       type: Number,
       default: 10
     },
+    // 总共多少数据
     total: {
       type: Number,
       default: 1
@@ -36,6 +39,7 @@ export default {
   setup(props, { emit }) {
     // 页码总页数
     const limit = computed(() => Math.ceil(props.total / props.pageSize))
+    // 计算最终渲染的数组
     const calcPages = computed(() => {
       const result = []
       const { currentPage, pageSize, total, pagerCount } = props

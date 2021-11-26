@@ -55,9 +55,9 @@
     </div>
     <c-pagination
       @current-change='handleChangePage'
-      :current-page='param.page'
-      :page-size='param.pageSize'
-      :total='pageTotal' />
+      :current-page='pager.page'
+      :page-size='pager.pageSize'
+      :total='pager.total' />
   </div>
 </template>
 <script>
@@ -79,6 +79,7 @@ export default {
       praisePercent: '100%',
       salesCount: ''
     })
+    // 筛选对象
     const param = reactive({
       page: 1,
       pageSize: 10,
@@ -87,7 +88,12 @@ export default {
       sortField: null, // 排序字段，可选值范围[praiseCount,createTime]
       sortMethod: 'desc'// 排序方法，可选值范围[asc,desc],默认为desc
     })
-    const pageTotal = ref(0)
+    // 分页对象
+    const pager = reactive({
+      page: 1,
+      pageSize: 10,
+      total: 0
+    })
     // 评论列表
     const list = ref([])
     // 当前激活的tag筛选
@@ -97,7 +103,7 @@ export default {
     const handleSelectedTag = (tag) => {
       param.tag = null
       param.hasPicture = null
-      param.page = 1
+      pager.page = 1
       if (tag && tag.title === '有图') {
         param.hasPicture = true
       } else if (tag) {
@@ -116,13 +122,13 @@ export default {
     const handSort = (sort, index) => {
       sortActiveIndex.value = index
       param.sortField = sort
-      param.page = 1
+      pager.page = 1
       // 请求数据
       getGoodEvaluateList()
     }
     // 事件: 分页
     const handleChangePage = (page) => {
-      param.page = page
+      pager.page = page
       getGoodEvaluateList()
     }
     watch(() => route.params.id, () => {
@@ -144,35 +150,37 @@ export default {
 
     // 分页获取评价列表
     async function getGoodEvaluateList() {
-      const { counts, items, page, pages } = await getGoodEvaluatePageApi({ id: id.value, ...param })
-      pageTotal.value = counts
+      const { counts, items, page, pages } = await getGoodEvaluatePageApi({ id: id.value, ...param, ...pager })
+      pager.total = counts
       list.value = items
     }
 
     function toSpecs(spec) {
-      return spec.reduce((p, c) => `${p} ${c.name}:${c.nameValue}`, '').trim()
+      return spec.reduce((p, c) => `${p} ${c.name}:${c.nameValue} `, '').trim()
     }
 
     // 初始化请求参数
     function initParam() {
       const initial = {
-        page: 1,
-        pageSize: 10,
         hasPicture: null,
         tag: null, // 标签
         sortField: null, // 排序字段，可选值范围[praiseCount,createTime]
         sortMethod: 'desc'// 排序方法，可选值范围[asc,desc],默认为desc
       }
+      Object.assign(pager, {
+        page: 1,
+        pageSize: 10
+      })
       Object.assign(param, initial)
     }
 
     return {
       param,
+      pager,
       tagActiveIndex,
       sortActiveIndex,
       goods,
       goodInfo,
-      pageTotal,
       list,
       toSpecs,
       handleSelectedTag,
