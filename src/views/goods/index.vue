@@ -23,7 +23,7 @@
           <!--标题,城市-->
           <good-name :good-detail='goodDetail'></good-name>
           <goods-sku :good-detail='goodDetail' sku-id='1369155872197971970' @change='handleChangeSku'></goods-sku>
-          <c-numbox></c-numbox>
+          <c-numbox label='数量' v-model='num' :max='goodDetail.inventory'></c-numbox>
           <c-button type='primary' style='margin-top: 20px;'>加入购物车</c-button>
         </div>
       </div>
@@ -73,12 +73,16 @@ export default {
     const goodDetail = ref(null)
     const id = ref(null)
     provide('goodDetail', goodDetail)
+    // 商品数量
+    const num = ref(1)
+    // 初始化请求数据
     watchEffect(async () => {
       id.value = route.params.id
       if (route.name !== 'product' || !id.value) return
       goodDetail.value = await getGoodDetailApi({ id: id.value })
       // console.log(goodDetail.value)
     })
+    // 事件: sku改变触发
     const handleChangeSku = (sku) => {
       goodDetail.value.price = sku.price
       goodDetail.value.oldPrice = sku.oldPrice
@@ -86,7 +90,8 @@ export default {
     }
     return {
       goodDetail,
-      handleChangeSku
+      handleChangeSku,
+      num
     }
   }
 }
