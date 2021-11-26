@@ -1,21 +1,24 @@
 <template>
   <div class='goods-detail'>
     <!-- 属性 -->
-    <ul class='attrs' v-if='goods.length'>
+    <ul class='attrs'>
       <li v-for='item in goods.details.properties' :key='item.value'>
         <span class='dt'>{{ item.name }}</span>
         <span class='dd'>{{ item.value }}</span>
       </li>
     </ul>
     <!-- 图片 -->
-    <img v-for='item in 1' :key='item' src='https://yanxuan-item.nosdn.127.net/0b1c902757b9f25b8f51c6bc6855e902.jpg' alt=''>
+    <img v-for='item in goods.details.pictures' :key='item' :src='item'
+         alt=''>
   </div>
 </template>
 <script>
+import { inject } from 'vue'
+
 export default {
   name: 'GoodsDetail',
   setup() {
-    const goods = []
+    const goods = inject('goodDetail')
     return { goods }
   }
 }

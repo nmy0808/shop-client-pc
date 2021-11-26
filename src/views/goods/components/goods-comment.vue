@@ -55,10 +55,18 @@
 </template>
 <script>
 import GoodsCommentImage from '@/views/goods/components/goods-comment-image'
+import { inject } from 'vue'
 
 export default {
   name: 'GoodsComment',
-  components: { GoodsCommentImage }
+  components: { GoodsCommentImage },
+  setup() {
+    const goods = inject('goodDetail')
+    console.log(goods.value)
+    return {
+      goods
+    }
+  }
 }
 </script>
 <style scoped lang='less'>
