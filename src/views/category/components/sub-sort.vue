@@ -50,7 +50,6 @@ export default {
         subSortSearch.sortMethod = 'asc'
       }
       if (rule !== 'price') {
-        console.log('null')
         subSortSearch.sortMethod = null
       }
       subSortSearch.sortField = rule

@@ -3,9 +3,9 @@
     <h3>{{ title }}</h3>
     <div v-if='list.length'>
       <GoodsItem v-for='item in list' :key='item.id' :data='item' />
-<!--      <div v-for='item in list' :key='item.id' :goods='item' >-->
-<!--        {{ item }}-->
-<!--      </div>-->
+      <!--      <div v-for='item in list' :key='item.id' :goods='item' >-->
+      <!--        {{ item }}-->
+      <!--      </div>-->
     </div>
   </div>
 </template>
@@ -37,7 +37,7 @@ export default {
       const id = route.params.id
       const name = route.name
       if (!id || id === 'undefined' || name !== 'product') return
-      list.value = await getGoodHotApi()
+      list.value = await getGoodHotApi({ type: props.type, limit: 3 })
     })
     return { title, list }
   }
@@ -56,7 +56,7 @@ export default {
     font-weight: normal;
   }
 
-  ::v-deep .goods-item {
+  :deep(.goods-item) {
     background: #fff;
     width: 100%;
     margin-bottom: 10px;

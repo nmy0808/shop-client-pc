@@ -153,7 +153,6 @@ export default {
       const { counts, items, page, pages } = await getGoodEvaluatePageApi({ id: id.value, ...param, ...pager })
       pager.total = counts
       list.value = items
-      console.log(items)
     }
 
     function toSpecs(spec) {
