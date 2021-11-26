@@ -1,70 +1,191 @@
 <template>
-  <div class='goods-comment'>
+  <div class='goods-comment' v-if='goodInfo'>
     <div class='head'>
       <div class='data'>
-        <p><span>100</span><span>人购买</span></p>
-        <p><span>99.99%</span><span>好评率</span></p>
+        <p><span>{{ goodInfo.salesCount }}</span><span>人购买</span></p>
+        <p><span>{{ goodInfo.praisePercent }}</span><span>好评率</span></p>
       </div>
       <div class='tags'>
         <div class='dt'>大家都在说：</div>
         <div class='dd'>
-          <a href='javascript:;' class='active'>全部评价（1000）</a>
-          <a href='javascript:;'>好吃（1000）</a>
-          <a href='javascript:;'>便宜（1000）</a>
-          <a href='javascript:;'>很好（1000）</a>
-          <a href='javascript:;'>再来一次（1000）</a>
-          <a href='javascript:;'>快递棒（1000）</a>
+          <a href='javascript:;'
+             @click='handleSelectedTag(null)'
+             :class='{active:tagActiveIndex === -1}'>全部评价（{{ goodInfo.evaluateCount }}）
+          </a>
+          <a v-for='(item,index) in goodInfo.tags'
+             :key='item.title'
+             :class='{active:tagActiveIndex === index}'
+             @click='handleSelectedTag(item)'
+             href='javascript:;'>
+            {{ item.title }}（{{ item.tagCount }}）
+          </a>
         </div>
       </div>
     </div>
     <div class='sort'>
       <span>排序：</span>
-      <a href='javascript:;' class='active'>默认</a>
-      <a href='javascript:;'>最新</a>
-      <a href='javascript:;'>最热</a>
+      <a href='javascript:;' :class='{active:sortActiveIndex === 0}' @click='handSort(null, 0)'>默认</a>
+      <a href='javascript:;' :class='{active:sortActiveIndex === 1}' @click='handSort("createTime", 1)'>最新</a>
+      <a href='javascript:;' :class='{active:sortActiveIndex === 2}' @click='handSort("praiseCount", 2)'>最热</a>
     </div>
     <!-- 列表-->
-    <div class='list'>
-      <div class='item'>
+    <div class='list' v-if='list.length'>
+      <div class='item' v-for='item in list' :key='item.id'>
         <div class='user'>
-          <img src='http://zhoushugang.gitee.io/erabbit-client-pc-static/uploads/avatar_1.png' alt=''>
-          <span>兔****m</span>
+          <img :src='item.member.avatar' alt=''>
+          <span>{{ item.member.nickname }}</span>
         </div>
         <div class='body'>
           <div class='score'>
-            <i class='iconfont icon-wjx01'></i>
-            <i class='iconfont icon-wjx01'></i>
-            <i class='iconfont icon-wjx01'></i>
-            <i class='iconfont icon-wjx01'></i>
-            <i class='iconfont icon-wjx02'></i>
-            <span class='attr'>颜色：黑色 尺码：M</span>
+            <i class='iconfont icon-wjx01' v-for='s in item.score' :key='s'></i>
+            <i class='iconfont icon-wjx02' v-for='s in (5-item.score)' :key='s+"1"'></i>
+            <span class='attr'>{{ toSpecs(item.orderInfo.specs) }}</span>
           </div>
-          <div class='text'>网易云app上这款耳机非常不错 新人下载网易云购买这款耳机优惠大 而且耳机🎧确实正品 音质特别好 戴上这款耳机 听音乐看电影效果声音真是太棒了 无线方便 小盒自动充电
-            最主要是质量好音质棒 想要买耳机的放心拍 音效巴巴滴 老棒了
+          <div class='text'>
+            {{ item.content }}
           </div>
           <!--评论图片浏览组件-->
-          <goods-comment-image v-if='1'></goods-comment-image>
+          <goods-comment-image v-if='item.pictures.length' :pictures='item.pictures'></goods-comment-image>
           <div class='time'>
-            <span>2020-10-10 10:11:22</span>
-            <span class='zan'><i class='iconfont icon-dianzan'></i>100</span>
+            <span>{{ item.createTime }}</span>
+            <span class='zan'><i class='iconfont icon-dianzan'></i>{{ item.praiseCount }}</span>
           </div>
         </div>
       </div>
     </div>
+    <c-pagination
+      @current-change='handleChangePage'
+      :current-page='pager.page'
+      :page-size='pager.pageSize'
+      :total='pager.total' />
   </div>
 </template>
 <script>
 import GoodsCommentImage from '@/views/goods/components/goods-comment-image'
-import { inject } from 'vue'
+import { inject, reactive, ref, watch, watchEffect } from 'vue'
+import { getGoodEvaluateApi, getGoodEvaluatePageApi } from '@/api'
+import { useRoute } from 'vue-router'
 
 export default {
   name: 'GoodsComment',
   components: { GoodsCommentImage },
   setup() {
     const goods = inject('goodDetail')
-    console.log(goods.value)
+    const id = ref(null)
+    const route = useRoute()
+    const goodInfo = ref({
+      evaluateCount: 0,
+      hasPictureCount: 0,
+      praisePercent: '100%',
+      salesCount: ''
+    })
+    // 筛选对象
+    const param = reactive({
+      page: 1,
+      pageSize: 10,
+      hasPicture: null,
+      tag: null, // 标签
+      sortField: null, // 排序字段，可选值范围[praiseCount,createTime]
+      sortMethod: 'desc'// 排序方法，可选值范围[asc,desc],默认为desc
+    })
+    // 分页对象
+    const pager = reactive({
+      page: 1,
+      pageSize: 10,
+      total: 0
+    })
+    // 评论列表
+    const list = ref([])
+    // 当前激活的tag筛选
+    const tagActiveIndex = ref(-1)
+    const sortActiveIndex = ref(0)
+    // 事件: 筛选字段 `空, 有图, tage`
+    const handleSelectedTag = (tag) => {
+      param.tag = null
+      param.hasPicture = null
+      pager.page = 1
+      if (tag && tag.title === '有图') {
+        param.hasPicture = true
+      } else if (tag) {
+        param.tag = tag.title
+      }
+      // 激活状态
+      if (!tag) {
+        tagActiveIndex.value = -1
+      } else {
+        tagActiveIndex.value = goodInfo.value.tags.findIndex(it => it.title === tag.title)
+      }
+      // 请求数据
+      getGoodEvaluateList()
+    }
+    // 事件; 排序
+    const handSort = (sort, index) => {
+      sortActiveIndex.value = index
+      param.sortField = sort
+      pager.page = 1
+      // 请求数据
+      getGoodEvaluateList()
+    }
+    // 事件: 分页
+    const handleChangePage = (page) => {
+      pager.page = page
+      getGoodEvaluateList()
+    }
+    watch(() => route.params.id, () => {
+      id.value = route.params.id
+      if (route.name !== 'product' || id.value === 'undefined' || !id.value) return
+      // 初始化请求参数
+      initParam()
+      goodInfo.value = null
+      list.value = []
+      getGoodEvaluate()
+      getGoodEvaluateList()
+    }, { immediate: true })
+
+    // 获取评价参数
+    async function getGoodEvaluate() {
+      goodInfo.value = await getGoodEvaluateApi({ id: id.value })
+      goodInfo.value.tags.unshift({ title: '有图', tagCount: goodInfo.value.hasPictureCount })
+    }
+
+    // 分页获取评价列表
+    async function getGoodEvaluateList() {
+      const { counts, items, page, pages } = await getGoodEvaluatePageApi({ id: id.value, ...param, ...pager })
+      pager.total = counts
+      list.value = items
+    }
+
+    function toSpecs(spec) {
+      return spec.reduce((p, c) => `${p} ${c.name}:${c.nameValue} `, '').trim()
+    }
+
+    // 初始化请求参数
+    function initParam() {
+      const initial = {
+        hasPicture: null,
+        tag: null, // 标签
+        sortField: null, // 排序字段，可选值范围[praiseCount,createTime]
+        sortMethod: 'desc'// 排序方法，可选值范围[asc,desc],默认为desc
+      }
+      Object.assign(pager, {
+        page: 1,
+        pageSize: 10
+      })
+      Object.assign(param, initial)
+    }
+
     return {
-      goods
+      param,
+      pager,
+      tagActiveIndex,
+      sortActiveIndex,
+      goods,
+      goodInfo,
+      list,
+      toSpecs,
+      handleSelectedTag,
+      handSort,
+      handleChangePage
     }
   }
 }

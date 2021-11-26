@@ -11,7 +11,7 @@
           </RouterLink>
         </div>
       </template>
-      <template>
+      <template v-else>
         <!--      fade-->
         <li class='carousel-item' :class='{fade:currentIndex === index}' v-for='(item,index) in list' :key='item.id'>
           <RouterLink to='/'>

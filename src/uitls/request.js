@@ -32,7 +32,6 @@ service.interceptors.response.use((res) => {
   return result
 }, (err) => {
   if (err.response && err.response.status === 401) {
-    console.log(TOKEN_INVALID)
     setTimeout(() => {
       const fullPath = encodeURIComponent(router.currentRoute.value.fullPath)
       router.push({

@@ -14,11 +14,9 @@ export default {
         account: 'xiaotuxian001',
         password: '123456'
       })
-      console.log(data)
     }
   },
   mounted () {
-    console.log(this.$route.fullPath)
   }
 }
 </script>
