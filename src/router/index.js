@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import Layout from '@/views/Layout'
 import Home from '../views/home'
 
@@ -36,11 +36,12 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/login/index')
-  }
+  },
+  { path: '/login/callback', component: () => import('@/views/login/callback') }
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHashHistory(process.env.BASE_URL),
   routes,
   scrollBehavior(to, from, savedPosition) {
     // 始终滚动到顶部
