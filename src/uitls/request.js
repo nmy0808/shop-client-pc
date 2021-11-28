@@ -26,8 +26,8 @@ service.interceptors.request.use((req) => {
 })
 service.interceptors.response.use((res) => {
   const { result } = res.data
-  if (result || result.token) {
-    store.commit('user/setUser', { token: result.token })
+  if (result && result.token) {
+    store.commit('user/setUser', { ...result })
   }
   return result
 }, (err) => {
@@ -41,12 +41,13 @@ service.interceptors.response.use((res) => {
     }, 1500)
     return Promise.reject(TOKEN_INVALID)
   } else {
-    return Promise.reject(err)
+    console.log(err.response.data.message)
+    return Promise.reject(err.response.data.message)
   }
 })
 
 // 核心
-function request (options) {
+function request(options) {
   // get   => params
   // other => data
   options.method = options.method || 'get'

@@ -8,12 +8,13 @@
         <i class='iconfont icon-msg'></i> 使用短信登录
       </a>
     </div>
-    <Form ref='formCom' class='form' :validation-schema='schema' v-slot='{errors}' autocomplete='off'>
+    <Form ref='formCom' class='form' v-slot='{errors}' autocomplete='off'>
       <template v-if='!isMsgLogin'>
         <div class='form-item'>
           <div class='input'>
             <i class='iconfont icon-user'></i>
             <Field :class='{error:errors.account}' v-model='form.account' name='account' type='text'
+                   :rules='schema.account'
                    placeholder='请输入用户名' />
           </div>
           <div class='error' v-if='errors.account'>
@@ -25,6 +26,7 @@
           <div class='input'>
             <i class='iconfont icon-lock'></i>
             <Field :class='{error:errors.password}' v-model='form.password' name='password' type='password'
+                   :rules='schema.password'
                    placeholder='请输入密码' />
           </div>
           <div class='error' v-if='errors.password'>
@@ -38,6 +40,7 @@
           <div class='input'>
             <i class='iconfont icon-user'></i>
             <Field :class='{error:errors.mobile}' v-model='form.mobile' name='mobile' type='text'
+                   :rules='schema.mobile'
                    placeholder='请输入手机号' />
           </div>
           <div class='error' v-if='errors.mobile'>
@@ -48,9 +51,11 @@
         <div class='form-item'>
           <div class='input'>
             <i class='iconfont icon-code'></i>
-            <Field :class='{error:errors.code}' v-model='form.code' name='code' type='text' placeholder='请输入验证码' />
-            <span class='code'>
-              {{ time === 0 ? '发送验证码' : `${time}秒后发送` }}
+            <Field :class='{error:errors.code}' v-model='form.code' name='code' type='text'
+                   :rules='schema.code'
+                   placeholder='请输入验证码' />
+            <span class='code' @click.stop='sendCode'>
+              {{ codeNum === 0 ? '发送验证码' : `${codeNum}秒后发送` }}
             </span>
           </div>
           <div class='error' v-if='errors.code'>
@@ -59,6 +64,7 @@
           </div>
         </div>
       </template>
+
       <div class='form-item'>
         <div class='agree'>
           <Field name='isAgree' v-slot='{ field }'>
@@ -74,10 +80,11 @@
           {{ errors.isAgree }}
         </div>
       </div>
-      <a @click='login()' href='javascript:;' class='btn'>登录</a>
+      <a @click='handleLogin()' href='javascript:;' class='btn'>登录</a>
     </Form>
     <div class='action'>
-      <a href="https://graph.qq.com/oauth2.0/authorize?client_id=100556005&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fwww.corho.com%3A8080%2F%23%2Flogin%2Fcallback">
+      <a
+        href='https://graph.qq.com/oauth2.0/authorize?client_id=100556005&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fwww.corho.com%3A8080%2F%23%2Flogin%2Fcallback'>
         <img src='https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png' alt=''>
       </a>
 
@@ -94,45 +101,99 @@ import { Form, Field } from 'vee-validate'
 import { nextTick, onMounted, reactive, ref, watch } from 'vue'
 import schema from '@/uitls/vee-validate-schema'
 import QC from 'qc'
+import { loginApi, loginMobileWithCodeApi } from '@/api'
+import useLoginRedirect from '@/hook/useLoginRedirect'
+import useSendCode from '@/hook/useSendCode'
 
 export default {
   name: 'LoginForm',
   components: { Form, Field },
   setup() {
-    const login = () => {
-    }
     const isMsgLogin = ref(false)
     const form = ref({
       isAgree: true,
-      account: null,
-      password: null,
-      mobile: null,
+      account: 'xiaotuxian001',
+      password: '123456',
+      mobile: '',
       code: null
     })
     const formCom = ref(null)
-    const time = ref(0)
-    // watch(isMsgLogin, () => {
-    //   // console.log(formCom.value)
-    //   // formCom.value.resetForm()
-    // })
     const onMsgLoginChange = (flag) => {
       formCom.value.resetForm()
       isMsgLogin.value = flag
       form.value = { isAgree: true }
     }
-    onMounted(() => {
-      QC.Login({
-        btnId: 'qqLoginBtn'
-      })
-    })
+    // 事件: 发送验证码 (发送验证码回调)
+    const { codeNum, handleSendCode } = useSendCode()
+    // 事件: 登录
+    const handleLogin = async () => {
+      const { valid } = await formCom.value.validate()
+      if (valid) {
+        if (!isMsgLogin.value) {
+          // - 普通账号密码登录
+          await normalLogin()
+        } else {
+          // - 手机验证码登录
+          await codeLogin()
+        }
+      }
+    }
+
+    // 发送验证码
+    async function sendCode() {
+      // 1.验证手机号是否合法
+      const { valid } = await formCom.value.validateField('mobile')
+      if (!valid) return
+      try {
+        const { mobile } = form.value
+        // 2.请求后台发送短信
+        await handleSendCode(mobile)
+        // todo 显示验证码发送成功提示
+      } catch (e) {
+      }
+    }
+
+    /**
+     * 普通账号密码登录
+     */
+    async function normalLogin() {
+      const { account, password } = form.value
+      try {
+        // 1.登录
+        await loginApi({ account, password })
+        // 2.登录成功后重定向, 默认是首页
+        useLoginRedirect()
+      } catch (e) {
+        // request 已经封装, 会弹出错误提示
+      }
+    }
+
+    /**
+     * 手机验证码登录
+     */
+    async function codeLogin() {
+      // 1.拿到手机号和code发送请求
+      const { mobile, code } = form.value
+      try {
+        // 1.登录
+        await loginMobileWithCodeApi({ mobile, code })
+        // 2.登录成功后重定向, 默认是首页
+        useLoginRedirect()
+      } catch (e) {
+        // request 已经封装, 会弹出错误提示
+      }
+    }
+
     return {
-      login,
+      handleLogin,
       form,
-      time,
+      codeNum,
       schema,
       isMsgLogin,
       formCom,
-      onMsgLoginChange
+      onMsgLoginChange,
+      handleSendCode,
+      sendCode
     }
   }
 }

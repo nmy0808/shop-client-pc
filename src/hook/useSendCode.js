@@ -1,5 +1,6 @@
 import { useIntervalFn } from '@vueuse/core'
 import { ref } from 'vue'
+import { sendLoginCodeApi } from '@/api'
 
 export default (startFn) => {
   const codeNum = ref(0)
@@ -12,14 +13,15 @@ export default (startFn) => {
   }, 1000, { immediate: false })
   /**
    * 方法: 发送信息
-   * @param startFn {function} 开始发送信息的回调
+   * @param mobile {string} 手机号
    */
-  const handleSendCode = () => {
+  const handleSendCode = async (mobile) => {
     if (codeNum.value > 0) return
     // 触发回调
     if (startFn && typeof startFn === 'function') {
       startFn()
     }
+    await sendLoginCodeApi({ mobile })
     codeNum.value = 60
     resume()
   }
