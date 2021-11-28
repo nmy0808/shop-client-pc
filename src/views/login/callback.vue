@@ -27,12 +27,14 @@
 </template>
 
 <script>
-import { provide, ref } from 'vue'
+import { onMounted, provide, ref } from 'vue'
 import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
 import CallbackBind from './components/callback-bind'
 import CallbackPatch from './components/callback-patch'
 import QC from 'qc'
+import { getLoginInfoByUnionIdApi } from '@/api'
+import useLoginRedirect from '@/hook/useLoginRedirect'
 
 export default {
   name: 'PageCallback',
@@ -43,31 +45,70 @@ export default {
     const avatar = ref(null)
     // 判断是否绑定了qq
     const isBind = ref(false)
-    // 是否qq验证通过
-    const flag = QC.Login.check()
+
     // qq的openid
     const unionId = ref('')
     // qq的用户资料信息
     const userInfo = ref(null)
     provide('userInfo', userInfo)
-    if (flag) {
-      QC.Login.getMe(openId => {
-        // 获取openid
-        unionId.value = openId
-        // - 如果账号已绑定完整, 直接跳转转发url或者首页
-        if (isBind.value) {
-          console.log('')
-        } else {
-          // 获取用户头像等信息
-          QC.api('https://graph.qq.com/user/get_user_info').success(res => {
-            userInfo.value = res.data
+    provide('unionId', unionId)
+
+    onMounted(async () => {
+      // 获取id
+      unionId.value = await getUnionId()
+      // 访问后台该id所绑资料是否完善
+      const flag = await checkAccount()
+      if (flag) {
+        // - 如果账号资料绑定完善, 直接跳转转发url或者首页
+        useLoginRedirect()
+      } else {
+        // - 如果不完善跳显示绑定页, 完善资料
+        showBindForm()
+      }
+    })
+
+    /**
+     * 获取qq的unionId
+     * @returns {Promise<unknown>}
+     */
+    function getUnionId() {
+      // 检查是否qq验证通过
+      const flag = QC.Login.check()
+      return new Promise((resolve, reject) => {
+        if (flag) {
+          QC.Login.getMe(openId => {
+            // 返回openid
+            resolve(openId)
           })
-          // - 如果账号没有绑定, 显示绑定页面
-          isBind.value = true
-          console.log(12)
         }
       })
     }
+
+    // 检查unionId是否已经完善
+    async function checkAccount() {
+      const params = {}
+      params.unionId = unionId.value
+      params.source = 1
+      try {
+        await getLoginInfoByUnionIdApi(params)
+        return Promise.resolve(true)
+      } catch (e) {
+        return Promise.resolve(false)
+      }
+    }
+
+    /**
+     * 获取用户头像, 并显示绑定表单
+     */
+    function showBindForm() {
+      // 获取用户头像等信息
+      QC.api('https://graph.qq.com/user/get_user_info').success(res => {
+        userInfo.value = res.data
+      })
+      // 显示绑定表单
+      isBind.value = true
+    }
+
     return { hasAccount, nickname, avatar, isBind, userInfo }
   }
 }
@@ -76,6 +117,21 @@ export default {
 <style scoped lang='less'>
 .container {
   padding: 25px 0;
+  position: relative;
+  height: 730px;
+  .unbind {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding: 25px 0;
+    z-index: 99;
+    .loading {
+      height: 100%;
+      background: #fff url(../../assets/images/load.gif) no-repeat center / 100px 100px;
+    }
+  }
 }
 
 .tab {

@@ -4,18 +4,23 @@
       <img :src='userInfo.figureurl_1' alt='' />
       <p>Hi，{{ userInfo.nickname }} 欢迎来小兔鲜，完成绑定后可以QQ账号一键登录哦~</p>
     </div>
-    <div class='c-form-item'>
-      <div class='field'>
-        <i class='icon iconfont icon-phone'></i>
-        <input class='input' type='text' placeholder='绑定的手机号' />
+    <Form v-slot='{ errors }' ref='formCom'>
+      <div class='c-form-item'>
+        <div class='field'>
+          <i class='icon iconfont icon-phone'></i>
+          <Field v-model='form.mobile'
+                 :rules='schema.mobile'
+                 name='mobile' class='input' type='text' placeholder='绑定的手机号' />
+        </div>
+        <div class='error' v-if='errors.mobile'>{{ errors.mobile }}</div>
       </div>
-      <div class='error'></div>
-    </div>
-    <div class='c-form-item'>
-      <div class='field'>
-        <i class='icon iconfont icon-code'></i>
-        <input class='input' type='text' placeholder='短信验证码' />
-        <span class='code' @click='handleSendCode'>
+      <div class='c-form-item'>
+        <div class='field'>
+          <i class='icon iconfont icon-code'></i>
+          <Field v-model='form.code'
+                 :rules='schema.code'
+                 name='code' class='input' type='text' placeholder='短信验证码' />
+          <span class='code' @click='sendCode'>
           <template v-if='codeNum<=0'>
             发送验证码
           </template>
@@ -23,34 +28,78 @@
             {{ codeNum }}s后可重发
           </template>
         </span>
+        </div>
+        <div class='error' v-if='errors.code'>{{ errors.code }}</div>
       </div>
-      <div class='error'></div>
-    </div>
-    <a href='javascript:;' class='submit'>立即绑定</a>
+    </Form>
+    <a href='javascript:;' class='submit' @click='handSubmit'>立即绑定</a>
   </div>
 </template>
 
 <script>
 import useSendCode from '@/hook/useSendCode'
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import { Form, Field } from 'vee-validate'
+import schema from '@/uitls/vee-validate-schema'
+import { bindMobileByUnionIdApi } from '@/api'
+import useLoginRedirect from '@/hook/useLoginRedirect'
 
 export default {
   name: 'CallbackBind',
+  // eslint-disable-next-line vue/no-unused-components
+  components: { Form, Field },
   setup() {
-    const route = useRoute()
-    const store = useStore()
-    const redirectUrl = computed(() => store.state.user.redirectUrl)
-    const sendStart = () => {
-      console.log('start')
-    }
-    const { codeNum, handleSendCode } = useSendCode(sendStart)
     const userInfo = inject('userInfo')
+    const unionId = inject('unionId')
+    const form = ref({
+      mobile: '',
+      code: ''
+    })
+    const formCom = ref(null)
+    const { codeNum, handleSendCode } = useSendCode()
+    // 事件: 提交绑定
+    const handSubmit = async () => {
+      // 验证表单
+      const { valid } = await formCom.value.validate()
+      if (valid) {
+        // 发送绑定请求
+        const params = {}
+        params.unionId = unionId.value
+        params.mobile = form.value.mobile
+        params.code = form.value.code
+        await bindMobileByUnionIdApi(params)
+        // todo 绑定成功消息提示
+        // 绑定成功后跳转
+        useLoginRedirect()
+      }
+    }
+    /**
+     * 验证手机号并发送短信
+     * @returns {Promise<void>}
+     */
+    const sendCode = async () => {
+      // 验证手机是否合法
+      const { valid } = await formCom.value.validateField('mobile')
+      if (valid) {
+        try {
+          // 如果合法就发送短信
+          await handleSendCode(form.value.mobile, 'bind')
+          // todo 短信已发送的提示框
+        } catch (e) {
+        }
+      }
+    }
+
     return {
+      formCom,
       codeNum,
-      handleSendCode,
-      userInfo
+      sendCode,
+      userInfo,
+      schema,
+      form,
+      handSubmit
     }
   }
 }
