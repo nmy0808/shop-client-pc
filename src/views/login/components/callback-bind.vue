@@ -1,8 +1,8 @@
 <template>
-  <div class='c-form'>
+  <div class='c-form' v-if='userInfo'>
     <div class='user-info'>
-      <img src='http://qzapp.qlogo.cn/qzapp/101941968/57C7969540F9D3532451374AA127EE5B/50' alt='' />
-      <p>Hi，Tom 欢迎来小兔鲜，完成绑定后可以QQ账号一键登录哦~</p>
+      <img :src='userInfo.figureurl_1' alt='' />
+      <p>Hi，{{ userInfo.nickname }} 欢迎来小兔鲜，完成绑定后可以QQ账号一键登录哦~</p>
     </div>
     <div class='c-form-item'>
       <div class='field'>
@@ -31,19 +31,21 @@
 </template>
 
 <script>
-import { ref } from 'vue'
-import { useIntervalFn } from '@vueuse/core'
 import useSendCode from '@/hook/useSendCode'
+import { inject } from 'vue'
 
 export default {
   name: 'CallbackBind',
   setup() {
-    const { codeNum, handleSendCode } = useSendCode(() => {
+    const sendStart = () => {
       console.log('start')
-    })
+    }
+    const { codeNum, handleSendCode } = useSendCode(sendStart)
+    const userInfo = inject('userInfo')
     return {
       codeNum,
-      handleSendCode
+      handleSendCode,
+      userInfo
     }
   }
 }

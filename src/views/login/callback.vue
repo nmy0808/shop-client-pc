@@ -1,6 +1,6 @@
 <template>
   <LoginHeader>联合登录</LoginHeader>
-  <section class='container' v-if='isBind'>
+  <section class='container' v-if='!isBind'>
     <div class='unbind'>
       <div class='loading'></div>
     </div>
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { provide, ref } from 'vue'
 import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
 import CallbackBind from './components/callback-bind'
@@ -43,14 +43,32 @@ export default {
     const avatar = ref(null)
     // 判断是否绑定了qq
     const isBind = ref(false)
+    // 是否qq验证通过
     const flag = QC.Login.check()
+    // qq的openid
+    const unionId = ref('')
+    // qq的用户资料信息
+    const userInfo = ref(null)
+    provide('userInfo', userInfo)
     if (flag) {
       QC.Login.getMe(openId => {
         // 获取openid
-        console.log(openId, '????????')
+        unionId.value = openId
+        // - 如果账号已绑定完整, 直接跳转转发url或者首页
+        if (isBind.value) {
+          console.log('')
+        } else {
+          // 获取用户头像等信息
+          QC.api('https://graph.qq.com/user/get_user_info').success(res => {
+            userInfo.value = res.data
+          })
+          // - 如果账号没有绑定, 显示绑定页面
+          isBind.value = true
+          console.log(12)
+        }
       })
     }
-    return { hasAccount, nickname, avatar, isBind }
+    return { hasAccount, nickname, avatar, isBind, userInfo }
   }
 }
 </script>
