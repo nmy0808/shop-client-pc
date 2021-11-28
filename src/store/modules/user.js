@@ -1,6 +1,6 @@
 export default {
   namespaced: true,
-  state () {
+  state() {
     return {
       // 用户信息
       profile: {
@@ -10,12 +10,17 @@ export default {
         account: '',
         mobile: '',
         token: ''
-      }
+      },
+      // 记录url跳入登录页之前的页面路径
+      redirectUrl: '/'
     }
   },
   mutations: {
-    setUser (state, payload) {
+    setUser(state, payload) {
       state.profile = payload
+    },
+    setRedirect(state, payload) {
+      state.redirectUrl = payload
     }
   }
 }
