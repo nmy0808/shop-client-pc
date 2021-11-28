@@ -32,11 +32,16 @@
 
 <script>
 import useSendCode from '@/hook/useSendCode'
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
 export default {
   name: 'CallbackBind',
   setup() {
+    const route = useRoute()
+    const store = useStore()
+    const redirectUrl = computed(() => store.state.user.redirectUrl)
     const sendStart = () => {
       console.log('start')
     }

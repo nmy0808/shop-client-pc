@@ -23,6 +23,8 @@ import LoginHeader from './components/login-header'
 import LoginFooter from './components/login-footer'
 import LoginForm from './components/LoginForm'
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 
 export default {
   name: 'Login',
@@ -33,7 +35,15 @@ export default {
   },
   setup() {
     const activeName = ref('account')
-
+    const route = useRoute()
+    const store = useStore()
+    // 判断url上是否有需要重定向的页面, 存入vuex中
+    const redirectUrl = route.query.redirect
+    if (redirectUrl) {
+      store.commit('user/setRedirect', redirectUrl)
+    } else {
+      store.commit('user/setRedirect', '/')
+    }
     return {
       activeName
     }

@@ -49,10 +49,16 @@
 
 <script>
 import useSendCode from '@/hook/useSendCode'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+import { computed } from 'vue'
 
 export default {
   name: 'CallbackPatch',
   setup() {
+    const route = useRoute()
+    const store = useStore()
+    const redirectUrl = computed(() => store.state.user.redirectUrl)
     const sendStart = () => {
       console.log('start')
     }
