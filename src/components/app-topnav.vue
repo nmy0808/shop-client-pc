@@ -3,7 +3,7 @@
     <div class='container'>
       <ul>
         <template v-if='proFile.token'>
-          <li><a href='javascript:;'><i class='iconfont icon-user'></i>周杰伦</a></li>
+          <li><a href='javascript:;'><i class='iconfont icon-user'></i>{{proFile.account}}</a></li>
           <li><a href='javascript:;' @click='handleLogout'>退出登录</a></li>
         </template>
         <template v-else>

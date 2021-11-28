@@ -38,9 +38,7 @@
 
 <script>
 import useSendCode from '@/hook/useSendCode'
-import { computed, inject, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
+import { inject, ref } from 'vue'
 import { Form, Field } from 'vee-validate'
 import schema from '@/uitls/vee-validate-schema'
 import { bindMobileByUnionIdApi } from '@/api'

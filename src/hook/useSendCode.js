@@ -1,6 +1,6 @@
 import { useIntervalFn } from '@vueuse/core'
 import { ref } from 'vue'
-import { sendBindCodeApi, sendLoginCodeApi } from '@/api'
+import { sendBindCodeApi, sendLoginCodeApi, sendRegisterWithBindCodeApi } from '@/api'
 
 export default (startFn) => {
   const codeNum = ref(0)
@@ -27,6 +27,9 @@ export default (startFn) => {
     }
     if (type === 'bind') {
       await sendBindCodeApi({ mobile })
+    }
+    if (type === 'reg') {
+      await sendRegisterWithBindCodeApi({ mobile })
     }
     codeNum.value = 60
     resume()
