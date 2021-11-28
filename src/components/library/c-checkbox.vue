@@ -15,6 +15,8 @@ export default {
   },
   setup(props, { emit }) {
     const checked = ref(false)
+    // eslint-disable-next-line vue/no-setup-props-destructure
+    checked.value = props.modelValue
     const changeChecked = () => {
       checked.value = !checked.value
       emit('update:modelValue', checked.value)
