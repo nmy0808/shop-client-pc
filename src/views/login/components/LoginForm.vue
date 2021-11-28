@@ -134,7 +134,7 @@ export default {
           await normalLogin()
         } else {
           // - 手机验证码登录
-          await codeLogin()
+          await mobileWithCodeLogin()
         }
       }
     }
@@ -171,7 +171,7 @@ export default {
     /**
      * 手机验证码登录
      */
-    async function codeLogin() {
+    async function mobileWithCodeLogin() {
       // 1.拿到手机号和code发送请求
       const { mobile, code } = form.value
       try {
