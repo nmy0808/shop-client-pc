@@ -104,6 +104,7 @@ import QC from 'qc'
 import { loginApi, loginMobileWithCodeApi } from '@/api'
 import useLoginRedirect from '@/hook/useLoginRedirect'
 import useSendCode from '@/hook/useSendCode'
+import message from '@/components/library/message'
 
 export default {
   name: 'LoginForm',
@@ -148,7 +149,6 @@ export default {
         const { mobile } = form.value
         // 2.请求后台发送短信
         await handleSendCode(mobile)
-        // todo 显示验证码发送成功提示
       } catch (e) {
       }
     }
@@ -163,6 +163,7 @@ export default {
         await loginApi({ account, password })
         // 2.登录成功后重定向, 默认是首页
         useLoginRedirect()
+        message.success({ text: '登录成功' })
       } catch (e) {
         // request 已经封装, 会弹出错误提示
       }
@@ -179,6 +180,7 @@ export default {
         await loginMobileWithCodeApi({ mobile, code })
         // 2.登录成功后重定向, 默认是首页
         useLoginRedirect()
+        message.success({ text: '登录成功' })
       } catch (e) {
         // request 已经封装, 会弹出错误提示
       }

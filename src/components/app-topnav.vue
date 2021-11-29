@@ -3,7 +3,7 @@
     <div class='container'>
       <ul>
         <template v-if='proFile.token'>
-          <li><a href='javascript:;'><i class='iconfont icon-user'></i>{{proFile.account}}</a></li>
+          <li><a href='javascript:;'><i class='iconfont icon-user'></i>{{ proFile.account }}</a></li>
           <li><a href='javascript:;' @click='handleLogout'>退出登录</a></li>
         </template>
         <template v-else>
@@ -25,6 +25,7 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import message from '@/components/library/message'
 
 export default {
   name: 'AppTopnav',
@@ -35,7 +36,7 @@ export default {
     const handleLogout = () => {
       store.commit('user/setUser', {})
       router.push({ name: 'login' })
-      // todo 退出消息提示
+      message.success({ text: '成功退出' })
     }
     return { proFile, handleLogout }
   }

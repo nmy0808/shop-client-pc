@@ -1,6 +1,7 @@
 import { useIntervalFn } from '@vueuse/core'
 import { ref } from 'vue'
 import { sendBindCodeApi, sendLoginCodeApi, sendRegisterWithBindCodeApi } from '@/api'
+import message from '@/components/library/message'
 
 export default (startFn) => {
   const codeNum = ref(0)
@@ -31,6 +32,7 @@ export default (startFn) => {
     if (type === 'reg') {
       await sendRegisterWithBindCodeApi({ mobile })
     }
+    message.success({ text: '验证码发送成功' })
     codeNum.value = 60
     resume()
   }

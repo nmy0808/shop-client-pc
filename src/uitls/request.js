@@ -3,6 +3,7 @@ import axios from 'axios'
 import config from '../config'
 import router from '../router'
 import store from '../store'
+import message from '@/components/library/message'
 
 const TOKEN_INVALID = 'Token认证失败，请重新登录'
 // const NETWORK_ERROR = '网络请求异常，请稍后重试'
@@ -41,8 +42,12 @@ service.interceptors.response.use((res) => {
     }, 1500)
     return Promise.reject(TOKEN_INVALID)
   } else {
-    console.log(err.response.data.message)
-    return Promise.reject(err.response.data.message)
+    const msg = err.response.data.message
+    if (err.response.data.code === '501' && msg === '三方登录失败') {
+    } else {
+      message.error({ text: msg })
+    }
+    return Promise.reject(msg)
   }
 })
 

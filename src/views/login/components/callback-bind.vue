@@ -43,6 +43,7 @@ import { Form, Field } from 'vee-validate'
 import schema from '@/uitls/vee-validate-schema'
 import { bindMobileByUnionIdApi } from '@/api'
 import useLoginRedirect from '@/hook/useLoginRedirect'
+import message from '@/components/library/message'
 
 export default {
   name: 'CallbackBind',
@@ -68,7 +69,7 @@ export default {
         params.mobile = form.value.mobile
         params.code = form.value.code
         await bindMobileByUnionIdApi(params)
-        // todo 绑定成功消息提示
+        message.success({ text: '绑定成功' })
         // 绑定成功后跳转
         useLoginRedirect()
       }
@@ -84,7 +85,6 @@ export default {
         try {
           // 如果合法就发送短信
           await handleSendCode(form.value.mobile, 'bind')
-          // todo 短信已发送的提示框
         } catch (e) {
         }
       }
