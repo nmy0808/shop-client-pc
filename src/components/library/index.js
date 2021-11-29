@@ -1,5 +1,6 @@
 // 指令
 import lazy from './lazy.directive'
+import message from '@/components/library/message'
 
 const importFn = require.context('./', false, /\.vue$/)
 const components = importFn.keys().map(path => importFn(path).default)
@@ -16,6 +17,7 @@ export default {
     for (const key in directives) {
       app.directive(key, directives[key])
     }
-    //
+    // 注册全局
+    app.config.globalProperties.$message = message
   }
 }

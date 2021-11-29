@@ -1,5 +1,5 @@
 <template>
-  <div class="app">
+  <div class='app'>
     <router-view></router-view>
   </div>
 </template>
@@ -9,18 +9,18 @@ import request from '@/uitls/request'
 
 export default {
   methods: {
-    async getDataApi () {
+    async getDataApi() {
       const data = await request.post('/login', {
         account: 'xiaotuxian001',
         password: '123456'
       })
     }
   },
-  mounted () {
+  mounted() {
   }
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang='less'>
 
 </style>
