@@ -21,7 +21,8 @@ export default {
     },
     // 邮箱商品总价
     validAmount(state, getters) {
-      return getters.validList.reduce((p, c) => p + c.count * c.nowPrice, 0)
+      const num = getters.validList.reduce((p, c) => p + c.count * Math.round(c.nowPrice * 100), 0) / 100
+      return num.toFixed(2)
     }
   },
   mutations: {
@@ -48,6 +49,13 @@ export default {
           targetGoods[key] = value
         }
       }
+    },
+    // 删除购物车里指定商品
+    deleteCart(state, goods) {
+      const index = state.list.findIndex(it => it.skuId === goods.skuId)
+      if (index > -1) {
+        state.list.splice(index, 1)
+      }
     }
   },
   actions: {
@@ -72,6 +80,17 @@ export default {
       Promise.all(promiseArr).then(res => {
         // 返回的json里需要补充一个skuId字段
         res.forEach((item, index) => ctx.commit('updateCart', { ...item, skuId: listCopy[index].skuId }))
+      })
+    },
+    // 删除指定商品
+    deleteCart(ctx, goods) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.token) {
+
+        } else {
+          ctx.commit('deleteCart', goods)
+          resolve()
+        }
       })
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class='cart'>
     <a class='curr' href='javascript:;'>
-      <i class='iconfont icon-cart'></i><em>{{ validList.length }}</em>
+      <i class='iconfont icon-cart'></i><em>{{ validTotal }}</em>
     </a>
     <div class='layer'>
       <div class='validList'>
@@ -17,7 +17,7 @@
               <p class='count'>x{{ item.count }}</p>
             </div>
           </RouterLink>
-          <i class='iconfont icon-close-new'></i>
+          <i @click='handleDelete(item)' class='iconfont icon-close-new'></i>
         </div>
       </div>
       <div class='foot'>
@@ -25,7 +25,7 @@
           <p>共 {{ validTotal }} 件商品</p>
           <p>&yen;{{ validAmount }}</p>
         </div>
-        <CButton type='plain'>去购物车结算</CButton>
+        <CButton @click='handleToCart' type='plain'>去购物车结算</CButton>
       </div>
     </div>
   </div>
@@ -34,11 +34,13 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import message from '@/components/library/message'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'AppHeaderCart',
   setup() {
     const store = useStore()
+    const router = useRouter()
     const validList = computed(() => store.getters['cart/validList'])
     const validTotal = computed(() => store.getters['cart/validTotal'])
     const validAmount = computed(() => store.getters['cart/validAmount'])
@@ -46,10 +48,20 @@ export default {
     store.dispatch('cart/fetchNewCart').then(res => {
       message({ text: '购物车更新完毕', type: 'success' })
     })
+    const handleDelete = (goods) => {
+      store.dispatch('cart/deleteCart', goods).then(res => {
+        message.success({ text: '删除成功' })
+      })
+    }
+    const handleToCart = () => {
+      router.push({ name: 'cart' })
+    }
     return {
       validList,
       validTotal,
-      validAmount
+      validAmount,
+      handleDelete,
+      handleToCart
     }
   }
 }
