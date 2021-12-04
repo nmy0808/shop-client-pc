@@ -98,7 +98,7 @@
         <div class='total'>
           共 {{ validTotal }} 件商品，已选择 {{ selectedTotal }} 件，商品合计：
           <span class='red'>¥{{ selectedAmount }}</span>
-          <CButton type='primary'>下单结算</CButton>
+          <CButton type='primary' @click='$router.push({name: "pay"})'>下单结算</CButton>
         </div>
       </div>
       <!-- 猜你喜欢 -->

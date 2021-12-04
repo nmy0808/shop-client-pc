@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Layout from '@/views/Layout'
 import Home from '../views/home'
+import store from '@/store'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
         path: '/cart',
         name: 'cart',
         component: () => import('@/views/cart/index.vue')
+      },
+      {
+        path: '/member/pay',
+        name: 'pay',
+        component: () => import('@/views/member/pay/index.vue')
       }
     ]
   },
@@ -52,6 +58,14 @@ const router = createRouter({
     // 始终滚动到顶部
     return { top: 0 }
   }
+})
+
+router.beforeEach((to, from, next) => {
+  const { token } = store.state.user.profile
+  if (to.fullPath.startsWith('/member') && !token) {
+    return next({ name: 'login', query: { redirect: to.fullPath } })
+  }
+  next()
 })
 
 export default router
