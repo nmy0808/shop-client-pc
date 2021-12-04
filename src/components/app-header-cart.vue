@@ -1,12 +1,12 @@
 <template>
   <div class='cart'>
     <a class='curr' href='javascript:;'>
-      <i class='iconfont icon-cart'></i><em>{{ validTotal }}</em>
+      <i @click='toPage({name: "cart"})' class='iconfont icon-cart'></i><em>{{ validTotal }}</em>
     </a>
-    <div class='layer'>
+    <div class='layer' v-if='isShow'>
       <div class='validList'>
         <div class='item' v-for='item in validList' :key='item.id'>
-          <RouterLink to=''>
+          <RouterLink :to='{name:"product", params:{id:item.id}}'>
             <img :src='item.picture' alt=''>
             <div class='center'>
               <p class='name ellipsis-2'>{{ item.name }}</p>
@@ -32,7 +32,7 @@
 </template>
 <script>
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import message from '@/components/library/message'
 import { useRouter } from 'vue-router'
 
@@ -44,6 +44,10 @@ export default {
     const validList = computed(() => store.getters['cart/validList'])
     const validTotal = computed(() => store.getters['cart/validTotal'])
     const validAmount = computed(() => store.getters['cart/validAmount'])
+    // 在购物车页面不显示弹框
+    const isShow = computed(() => {
+      return router.currentRoute.value.name !== 'cart'
+    })
 
     store.dispatch('cart/fetchNewCart').then(res => {
       message({ text: '购物车更新完毕', type: 'success' })
@@ -56,12 +60,17 @@ export default {
     const handleToCart = () => {
       router.push({ name: 'cart' })
     }
+    const toPage = (params) => {
+      router.push(params)
+    }
     return {
+      isShow,
       validList,
       validTotal,
       validAmount,
       handleDelete,
-      handleToCart
+      handleToCart,
+      toPage
     }
   }
 }

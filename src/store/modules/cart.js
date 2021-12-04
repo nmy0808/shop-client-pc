@@ -15,14 +15,33 @@ export default {
     validList(state) {
       return state.list.filter(it => it.stock > 0 && it.isEffective)
     },
+    invalidList(state) {
+      return state.list.filter(it => it.stock === 0 || !it.isEffective)
+    },
     // 有效商品总数
     validTotal(state, getters) {
       return getters.validList.reduce((p, c) => p + c.count, 0)
     },
-    // 邮箱商品总价
+    // 有效商品总价
     validAmount(state, getters) {
       const num = getters.validList.reduce((p, c) => p + c.count * Math.round(c.nowPrice * 100), 0) / 100
       return num.toFixed(2)
+    },
+    // 已选中商品列表
+    selectedList(state) {
+      return state.list.filter(it => it.selected)
+    },
+    // 已选中商品总价
+    selectedAmount(state, getters) {
+      const num = getters.selectedList.reduce((p, c) => p + Math.round(c.nowPrice * c.count * 100), 0) / 100
+      return num.toFixed(2)
+    },
+    // 已选中商品总数
+    selectedTotal(state, getters) {
+      return getters.selectedList.reduce((p, c) => p + c.count, 0)
+    },
+    isSelectAll(state, getters) {
+      return getters.selectedTotal === getters.validTotal
     }
   },
   mutations: {
@@ -89,6 +108,47 @@ export default {
 
         } else {
           ctx.commit('deleteCart', goods)
+          resolve()
+        }
+      })
+    },
+    // 删除所有有效商品
+    // type = 'valid' | 'invalid'
+    deleteCartAll(ctx, type) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.token) {
+
+        } else {
+          const list = ctx.getters[type === 'valid' ? 'selectedList' : 'invalidList']
+          list.forEach(item => {
+            ctx.commit('deleteCart', item)
+          })
+          resolve()
+        }
+      })
+    },
+    // 改变指定商品状态
+    // goods必须要有skuId字段
+    updateCart(ctx, goods) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.token) {
+
+        } else {
+          ctx.commit('updateCart', goods)
+          resolve()
+        }
+      })
+    },
+    // 改变全部有效的商品状态
+    updateCartAll(ctx, flag) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.token) {
+          // ids
+        } else {
+          ctx.getters.validList.forEach(item => {
+            item.selected = flag
+            ctx.commit('updateCart', item)
+          })
           resolve()
         }
       })

@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 export default {
   name: 'CCheckbox',
@@ -22,6 +22,9 @@ export default {
       emit('update:modelValue', checked.value)
       emit('change', checked.value)
     }
+    watch(() => props.modelValue, (val) => {
+      checked.value = val
+    })
     return {
       checked,
       changeChecked

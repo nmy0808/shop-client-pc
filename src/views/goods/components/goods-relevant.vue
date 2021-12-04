@@ -5,7 +5,7 @@
       <span class='title'>同类商品推荐</span>
     </div>
     <!-- 此处使用改造后的c-carousel.vue -->
-    <c-carousel :list='list' type='multiple' :auto='false'/>
+    <c-carousel :list='list' type='multiple' :auto='false' />
   </div>
 </template>
 
@@ -25,7 +25,8 @@ export default {
       list.value = []
       const id = route.params.id
       const name = route.name
-      if (!id || id === 'undefined' || name !== 'product') return
+      // if (!id || id === 'undefined' || name !== 'product') return
+      if (!(name === 'product' || name === 'cart')) return
       const data = await getGoodRelevantWithLikeApi({ id, limit: 8 })
       const num = 4
       const pageNum = Math.ceil(data.length / num)
@@ -79,25 +80,31 @@ export default {
     }
   }
 }
+
 :deep(.c-carousel) {
   height: 380px;
-  a.carousel-btn.prev, div.carousel-indicator{
+
+  a.carousel-btn.prev, div.carousel-indicator {
     margin-left: 0;
   }
+
   .carousel {
     &-indicator {
       bottom: 30px;
+
       span {
         &.active {
           background: @mainColor;
         }
       }
     }
+
     &-btn {
       top: 110px;
       opacity: 1;
-      background: rgba(0,0,0,0);
+      background: rgba(0, 0, 0, 0);
       color: #ddd;
+
       i {
         font-size: 30px;
       }

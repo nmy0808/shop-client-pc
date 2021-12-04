@@ -10,7 +10,7 @@
           <thead>
           <tr>
             <th width='120'>
-              <CCheckbox>全选</CCheckbox>
+              <CCheckbox :model-value='isSelectAll' @change='handleSelectAllValid'>全选</CCheckbox>
             </th>
             <th width='400'>商品信息</th>
             <th width='220'>单价</th>
@@ -21,31 +21,36 @@
           </thead>
           <!-- 有效商品 -->
           <tbody>
-          <tr v-for='i in 3' :key='i'>
+          <tr v-for='item in validList' :key='item.skuId'>
             <td>
-              <CCheckbox />
+              <CCheckbox :model-value='item.selected' @change='(flag)=>handleChangeValidItem(flag,item)' />
             </td>
             <td>
               <div class='goods'>
-                <RouterLink to='/'><img src='https://yanxuan-item.nosdn.127.net/13ab302f8f2c954d873f03be36f8fb03.png'
-                                        alt=''></RouterLink>
+                <RouterLink :to='{name:"product", params:{id:item.id}}'>
+                  <img :src='item.picture'
+                       alt=''>
+                </RouterLink>
                 <div>
-                  <p class='name ellipsis'>和手足干裂说拜拜 ingrams手足皲裂修复霜</p>
+                  <p class='name ellipsis'>{{ item.name }}</p>
                   <!-- 选择规格组件 -->
                 </div>
               </div>
             </td>
             <td class='tc'>
-              <p>&yen;200.00</p>
-              <p>比加入时降价 <span class='red'>&yen;20.00</span></p>
+              <p>&yen;{{ item.nowPrice }}</p>
+              <p v-if='item.price - item.nowPrice >= 0'>比加入时降价 <span class='red'>&yen;{{ item.price - item.nowPrice
+                }}</span></p>
             </td>
             <td class='tc'>
-              <CNumbox />
+              <CNumbox :max='item.stock' :model-value='item.count'
+                       @update:modelValue='(num)=>handleChangeItemNum(num,item)' />
             </td>
-            <td class='tc'><p class='f16 red'>&yen;200.00</p></td>
+            <td class='tc'><p class='f16 red'>&yen;{{ (Math.round(item.nowPrice * item.count * 100) / 100).toFixed(2)
+              }}</p></td>
             <td class='tc'>
               <p><a href='javascript:;'>移入收藏夹</a></p>
-              <p><a class='green' href='javascript:;'>删除</a></p>
+              <p><a @click='handleDeleteItem(item)' class='green' href='javascript:;'>删除</a></p>
               <p><a href='javascript:;'>找相似</a></p>
             </td>
           </tr>
@@ -55,14 +60,15 @@
           <tr>
             <td colspan='6'><h3 class='tit'>失效商品</h3></td>
           </tr>
-          <tr v-for='i in 3' :key='i'>
+          <tr v-for='item in invalidList' :key='item'>
             <td>
-              <CCheckbox style='color:#eee;' />
+              <CCheckbox @change='(flag)=>handleChangeInvalidItem(flag,item)' style='color:#eee;' />
             </td>
             <td>
               <div class='goods'>
-                <RouterLink to='/'><img src='https://yanxuan-item.nosdn.127.net/13ab302f8f2c954d873f03be36f8fb03.png'
-                                        alt=''></RouterLink>
+                <RouterLink :to='{name:"product", params:{id:item.id}}'><img
+                  src='https://yanxuan-item.nosdn.127.net/13ab302f8f2c954d873f03be36f8fb03.png'
+                  alt=''></RouterLink>
                 <div>
                   <p class='name ellipsis'>和手足干裂说拜拜 ingrams手足皲裂修复霜</p>
                   <p class='attr'>颜色：粉色 尺寸：14cm 产地：中国</p>
@@ -83,14 +89,15 @@
       <!-- 操作栏 -->
       <div class='action'>
         <div class='batch'>
-          <CCheckbox>全选</CCheckbox>
-          <a href='javascript:;'>删除商品</a>
+          <!--          validList.length === validTotal-->
+          <CCheckbox :model-value='isSelectAll' @change='handleSelectAllValid'>全选</CCheckbox>
+          <a href='javascript:;' @click='handleClearCartList'>删除商品</a>
           <a href='javascript:;'>移入收藏夹</a>
-          <a href='javascript:;'>清空失效商品</a>
+          <a href='javascript:;' @click='handleClearInvalidCartList'>清空失效商品</a>
         </div>
         <div class='total'>
-          共 7 件商品，已选择 2 件，商品合计：
-          <span class='red'>¥400</span>
+          共 {{ validTotal }} 件商品，已选择 {{ selectedTotal }} 件，商品合计：
+          <span class='red'>¥{{ selectedAmount }}</span>
           <CButton type='primary'>下单结算</CButton>
         </div>
       </div>
@@ -101,10 +108,75 @@
 </template>
 <script>
 import GoodRelevant from '@/views/goods/components/goods-relevant'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 
 export default {
   name: 'CCartPage',
-  components: { GoodRelevant }
+  components: { GoodRelevant },
+  setup() {
+    const store = useStore()
+    const validList = computed(() => store.getters['cart/validList'])
+    const invalidList = computed(() => store.getters['cart/invalidList'])
+    // 有效商品总数
+    const validTotal = computed(() => store.getters['cart/validTotal'])
+    // 有效商品总价
+    const validAmount = computed(() => store.getters['cart/validAmount'])
+    // 已选中商品列表
+    const selectedList = computed(() => store.getters['cart/selectedList'])
+    // 已选中商品总价
+    const selectedAmount = computed(() => store.getters['cart/selectedAmount'])
+    // 已选中商品总数
+    const selectedTotal = computed(() => store.getters['cart/selectedTotal'])
+    // 已选中商品总数
+    const isSelectAll = computed(() => store.getters['cart/isSelectAll'])
+
+    // 事件: 有效全选
+    const handleSelectAllValid = (flag) => {
+      store.dispatch('cart/updateCartAll', flag)
+    }
+    // 事件: 改变单一有效商品的状态
+    const handleChangeValidItem = (flag, item) => {
+      store.dispatch('cart/updateCart', { ...item, selected: !item.selected })
+    }
+    // 事件: 改变单一无效商品的状态
+    const handleChangeInvalidItem = (flag, item) => {
+      store.dispatch('cart/updateCart', { ...item, selected: !item.selected })
+    }
+    // 事件: 改变商品数量
+    const handleChangeItemNum = (num, item) => {
+      store.dispatch('cart/updateCart', { ...item, count: num })
+    }
+    // 事件: 删除商品
+    const handleDeleteItem = (item) => {
+      store.dispatch('cart/deleteCart', item)
+    }
+    // 事件: 删除所有选中商品
+    const handleClearCartList = () => {
+      store.dispatch('cart/deleteCartAll', 'valid')
+    }
+    // 事件: 清除无效商品
+    const handleClearInvalidCartList = () => {
+      store.dispatch('cart/deleteCartAll', 'invalid')
+    }
+    return {
+      validList,
+      invalidList,
+      validTotal,
+      validAmount,
+      selectedList,
+      selectedAmount,
+      isSelectAll,
+      selectedTotal,
+      handleSelectAllValid,
+      handleChangeValidItem,
+      handleChangeInvalidItem,
+      handleChangeItemNum,
+      handleDeleteItem,
+      handleClearCartList,
+      handleClearInvalidCartList
+    }
+  }
 }
 </script>
 <style scoped lang='less'>
