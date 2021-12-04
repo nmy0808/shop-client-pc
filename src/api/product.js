@@ -53,3 +53,12 @@ export function getGoodEvaluatePageApi({ id, ...params }) {
 export function getGoodSkuApi({ id }) {
   return request.get(`/goods/sku/${id}`, {})
 }
+
+/**
+ * 商品信息-库存价格是否有效（支持本地购物车）
+ * @param id
+ * @returns {*}
+ */
+export function getNewCartGoods({ id }) {
+  return request.get(`/goods/stock/${id}`, {})
+}
