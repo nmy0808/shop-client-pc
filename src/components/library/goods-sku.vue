@@ -79,7 +79,6 @@ export default {
         if (!skuIds) return
         const skuId = skuIds[0]
         const sku = skus.find(it => it.id === skuId)
-        console.log('------')
         emit('change', {
           skuId: sku.id,
           price: sku.price,
