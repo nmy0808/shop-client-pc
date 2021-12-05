@@ -44,12 +44,14 @@ import schema from '@/uitls/vee-validate-schema'
 import { bindMobileByUnionIdApi } from '@/api'
 import useLoginRedirect from '@/hook/useLoginRedirect'
 import message from '@/components/library/message'
+import { useStore } from 'vuex'
 
 export default {
   name: 'CallbackBind',
   // eslint-disable-next-line vue/no-unused-components
   components: { Form, Field },
   setup() {
+    const store = useStore()
     const userInfo = inject('userInfo')
     const unionId = inject('unionId')
     const form = ref({
@@ -70,6 +72,9 @@ export default {
         params.code = form.value.code
         await bindMobileByUnionIdApi(params)
         message.success({ text: '绑定成功' })
+        await store.dispatch('cart/mergeCart')
+        // 登录后更新本地购物车列表
+        // await store.dispatch('cart/fetchNewCart')
         // 绑定成功后跳转
         useLoginRedirect()
       }

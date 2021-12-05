@@ -65,6 +65,7 @@ export default {
   name: 'CallbackPatch',
   components: { Form, Field },
   setup() {
+    const store = useStore()
     const formCom = ref(null)
     const form = ref({})
     const unionId = inject('unionId')
@@ -92,6 +93,8 @@ export default {
         params.password = form.value.password
         params.code = form.value.code
         await bindUserInfoByUnionIdApi(params)
+        await store.dispatch('cart/mergeCart')
+        // 登录后更新本地购物车列表
         message.success({ text: '绑定成功' })
         // 绑定成功后跳转
         useLoginRedirect()
