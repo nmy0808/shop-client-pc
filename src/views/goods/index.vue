@@ -24,7 +24,10 @@
           <good-name :good-detail='goodDetail'></good-name>
           <goods-sku :good-detail='goodDetail' @change='handleChangeSku'></goods-sku>
           <c-numbox label='数量' v-model='num' :max='goodDetail.inventory'></c-numbox>
-          <c-button type='primary' style='margin-top: 20px;'>加入购物车</c-button>
+          <c-button type='primary'
+                    @click='handleInsertCart'
+                    style='margin-top: 20px;'>加入购物车
+          </c-button>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -63,15 +66,20 @@ import GoodsHot from '@/views/goods/components/goods-hot'
 import GoodsWarn from '@/views/goods/components/goods-warn'
 import { computed, provide, reactive, ref, watchEffect } from 'vue'
 import { getGoodDetailApi, getGoodEvaluateApi, getGoodEvaluatePageApi } from '@/api'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import message from '@/components/library/message'
+import { useStore } from 'vuex'
 
 export default {
   name: 'GoodsPage',
   components: { GoodsWarn, GoodsHot, GoodsTabs, GoodsSku, GoodName, GoodsSales, GoodsImage, GoodsRelevant },
   setup() {
     const route = useRoute()
+    const router = useRouter()
+    const store = useStore()
     const goodDetail = ref(null)
     const id = ref(null)
+    const currentSku = ref(null)
     provide('goodDetail', goodDetail)
     // 商品数量
     const num = ref(1)
@@ -88,11 +96,47 @@ export default {
       goodDetail.value.price = sku.price
       goodDetail.value.oldPrice = sku.oldPrice
       goodDetail.value.inventory = sku.inventory
+      currentSku.value = sku
+    }
+    const handleInsertCart = () => {
+      if (!currentSku.value) {
+        return message.warn({ text: '请先选择商品规格' })
+      }
+      if (num.value > currentSku.value.inventory) {
+        return message.warn({ text: '超过库存, 请重新选择' })
+      }
+      // id skuId name picture price nowPrice count attrsTest selected stock isEffective
+      const good = goodDetail.value
+      const { id, name, mainPictures, price, inventory: stock } = good
+      const { specsText: attrsTest, skuId } = currentSku.value
+      // 商品图片
+      let picture = null
+      if (mainPictures && Array.isArray(mainPictures) && mainPictures.length > 0) {
+        picture = mainPictures[0]
+      }
+      const param = {
+        id,
+        skuId,
+        name,
+        picture,
+        price,
+        nowPrice: price,
+        count: num.value,
+        attrsTest,
+        stock,
+        selected: true,
+        isEffective: true
+      }
+      store.dispatch('cart/insertCart', param).then(res => {
+        message.success({ text: '添加成功' })
+        // router.push({ name: 'cart' })
+      })
     }
     return {
       goodDetail,
       handleChangeSku,
-      num
+      num,
+      handleInsertCart
     }
   }
 }

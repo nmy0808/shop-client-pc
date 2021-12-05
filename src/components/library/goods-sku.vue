@@ -63,6 +63,7 @@ export default {
         item.selected = false
         filterSelected[index] = undefined
         judgeSpecState()
+        emit('change', {})
         return
       }
       // 排它

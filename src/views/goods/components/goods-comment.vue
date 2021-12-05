@@ -54,8 +54,8 @@
       </div>
     </div>
     <c-pagination
-      @current-change='handleChangePage'
-      :current-page='pager.page'
+      @currentsku-change='handleChangePage'
+      :currentsku-page='pager.page'
       :page-size='pager.pageSize'
       :total='pager.total' />
   </div>
