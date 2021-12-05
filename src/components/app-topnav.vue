@@ -36,6 +36,7 @@ export default {
     const handleLogout = () => {
       store.commit('user/setUser', {})
       router.push({ name: 'login' })
+      store.commit('cart/setCart', [])
       message.success({ text: '成功退出' })
     }
     return { proFile, handleLogout }

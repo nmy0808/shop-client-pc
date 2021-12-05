@@ -105,6 +105,7 @@ import { loginApi, loginMobileWithCodeApi } from '@/api'
 import useLoginRedirect from '@/hook/useLoginRedirect'
 import useSendCode from '@/hook/useSendCode'
 import message from '@/components/library/message'
+import { useStore } from 'vuex'
 
 export default {
   name: 'LoginForm',
@@ -113,7 +114,7 @@ export default {
     const isMsgLogin = ref(false)
     const form = ref({
       isAgree: true,
-      account: 'xiaotuxian001',
+      account: 'nmynmy',
       password: '123456',
       mobile: '',
       code: null
@@ -124,6 +125,7 @@ export default {
       isMsgLogin.value = flag
       form.value = { isAgree: true }
     }
+    const store = useStore()
     // 事件: 发送验证码 (发送验证码回调)
     const { codeNum, handleSendCode } = useSendCode()
     // 事件: 登录
@@ -161,6 +163,9 @@ export default {
       try {
         // 1.登录
         await loginApi({ account, password })
+        await store.dispatch('cart/mergeCart')
+        // 登录后更新本地购物车列表
+        // await store.dispatch('cart/fetchNewCart')
         // 2.登录成功后重定向, 默认是首页
         useLoginRedirect()
         message.success({ text: '登录成功' })
@@ -178,6 +183,9 @@ export default {
       try {
         // 1.登录
         await loginMobileWithCodeApi({ mobile, code })
+        await store.dispatch('cart/mergeCart')
+        // 登录后更新本地购物车列表
+        // await store.dispatch('cart/fetchNewCart')
         // 2.登录成功后重定向, 默认是首页
         useLoginRedirect()
         message.success({ text: '登录成功' })
