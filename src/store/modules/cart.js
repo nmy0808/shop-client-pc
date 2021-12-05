@@ -152,6 +152,16 @@ export default {
           resolve()
         }
       })
+    },
+    // 修改sku
+    updateCartSku(ctx, { oldSkuId, newSku }) {
+      const list = ctx.state.list
+      const index = list.findIndex(it => it.skuId === oldSkuId)
+      const oldGoods = list[index]
+      const { price: nowPrice, inventory, skuId, specsText: attrsTest } = newSku
+      const newGoods = { ...oldGoods, nowPrice, inventory, skuId, attrsTest }
+      ctx.commit('deleteCart', oldGoods)
+      ctx.commit('insertCart', newGoods)
     }
   }
 }

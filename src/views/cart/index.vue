@@ -34,6 +34,7 @@
                 <div>
                   <p class='name ellipsis'>{{ item.name }}</p>
                   <!-- 选择规格组件 -->
+                  <cart-sku :sku-id='item.skuId' :attrsText='item.attrsTest' :goods='item' />
                 </div>
               </div>
             </td>
@@ -110,10 +111,11 @@
 import GoodRelevant from '@/views/goods/components/goods-relevant'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import CartSku from '@/views/cart/components/cart-sku'
 
 export default {
   name: 'CCartPage',
-  components: { GoodRelevant },
+  components: { CartSku, GoodRelevant },
   setup() {
     const store = useStore()
     const validList = computed(() => store.getters['cart/validList'])
