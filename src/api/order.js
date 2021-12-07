@@ -13,3 +13,12 @@ export const findCheckoutInfoApi = () => {
 export const submitOrderApi = (params) => {
   return request.post('/member/order', params)
 }
+
+/**
+ * 根据id查看订单详情
+ * @param {Object} id
+ * @returns {*}
+ */
+export const getOrderInfoByIdApi = ({ id }) => {
+  return request.get('/member/order/' + id, {})
+}
