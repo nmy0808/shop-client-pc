@@ -94,8 +94,8 @@ export default {
   setup() {
     // data
     const orderInfo = inject('order')
-    const list = computed(() => orderInfo.value?.userAddresses)
     const getOrderInfo = inject('getOrderInfo')
+    const list = computed(() => orderInfo.value?.userAddresses)
     const listVisible = ref(false)
     const addVisible = ref(false)
     const actionType = ref('')

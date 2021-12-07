@@ -98,7 +98,9 @@ export default {
   components: { CheckoutAddress },
   setup() {
     const order = ref(null)
+    // 商品列表
     const goods = ref(null)
+    // 金额明细
     const summary = ref(null)
     // order参数: {goods, summary, userAddresses}
     provide('order', order)
@@ -115,7 +117,6 @@ export default {
       order.value = await findCheckoutInfoApi()
       goods.value = order.value.goods
       summary.value = order.value.summary
-      console.log(order.value, '???')
     }
 
     return {
