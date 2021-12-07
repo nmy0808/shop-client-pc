@@ -27,7 +27,7 @@
         <div class='item'>
           <p>支付平台</p>
           <a class='btn wx' href='javascript:;'></a>
-          <a class='btn alipay' href='javascript:;'></a>
+          <a class='btn alipay' href='javascript:;' @click='toPagePay'></a>
         </div>
         <div class='item'>
           <p>支付方式</p>
@@ -39,6 +39,17 @@
         </div>
       </div>
     </div>
+    <CDialog title='正在支付...' v-model='visibleDialog'>
+      <div class='pay-wait'>
+        <img src='@/assets/images/load.gif' alt=''>
+        <div v-if='orderInfo'>
+          <p>如果支付成功：</p>
+          <RouterLink to='/'>查看订单详情></RouterLink>
+          <p>如果支付失败：</p>
+          <RouterLink to='/'>查看相关疑问></RouterLink>
+        </div>
+      </div>
+    </CDialog>
   </div>
 </template>
 <script>
@@ -46,7 +57,7 @@ import { useRoute } from 'vue-router'
 import { ref } from 'vue'
 import { getOrderInfoByIdApi } from '@/api/order'
 import useCountdown from '@/hook/useCountdown'
-import { unix } from 'dayjs'
+import config from '@/config'
 
 export default {
   name: 'CPayPage',
@@ -55,9 +66,17 @@ export default {
     const orderId = route.query.orderId
     const orderInfo = ref(null) // 订单信息
     const countdown = ref(null) // 倒计时(秒), -1为失效
-
+    const visibleDialog = ref(false)
+    const payUrl = `${config.baseURL}/pay/aliPay?redirect=${encodeURIComponent('http://localhost:8080/#/pay/callback')}&orderId=${orderId}`
     // 初始化订单信息
     getOrderInfo()
+
+    // 跳转到支付页
+    const toPagePay = () => {
+      visibleDialog.value = true
+      window.open(payUrl)
+    }
+
     // 倒计时
     const { start, countdownText } = useCountdown()
 
@@ -68,11 +87,25 @@ export default {
       start(countdown.value)
     }
 
-    return { orderInfo, countdownText, countdown }
+    return { orderInfo, countdownText, countdown, toPagePay, visibleDialog }
   }
 }
 </script>
 <style scoped lang='less'>
+.pay-wait {
+  display: flex;
+  justify-content: space-around;
+
+  p {
+    margin-top: 30px;
+    font-size: 14px;
+  }
+
+  a {
+    color: @mainColor;
+  }
+}
+
 .pay-info {
   background: #fff;
   display: flex;
