@@ -82,7 +82,7 @@
         </div>
         <!-- 提交订单 -->
         <div class='submit'>
-          <CButton type='primary'>提交订单</CButton>
+          <CButton @click='submitOrder' type='primary'>提交订单</CButton>
         </div>
       </div>
     </div>
@@ -90,8 +90,11 @@
 </template>
 <script>
 import CheckoutAddress from '@/views/member/pay/components/checkout-address'
-import { findCheckoutInfoApi } from '@/api/order'
+import { findCheckoutInfoApi, submitOrderApi } from '@/api/order'
 import { computed, provide, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import message from '@/components/library/message'
+import { useStore } from 'vuex'
 
 export default {
   name: 'CPayCheckoutPage',
@@ -102,12 +105,37 @@ export default {
     const goods = ref(null)
     // 金额明细
     const summary = ref(null)
+    // 地址列表
+    const userAddresses = ref(null)
     // order参数: {goods, summary, userAddresses}
     provide('order', order)
     provide('getOrderInfo', getOrderInfo)
-
+    const router = useRouter()
+    const store = useStore()
     // 初始化获取订单信息
     getOrderInfo()
+    // 点击提交订单并跳转
+    const submitOrder = async () => {
+      const addressId = userAddresses.value?.find(it => it.isDefault === 0)?.id
+      if (!addressId) {
+        message.warn({ text: '请选择一个默认地址' })
+        return
+      }
+      const params = {}
+      params.addressId = addressId
+      // [{skuId,count}, ...]
+      params.goods = JSON.parse(JSON.stringify(goods.value)).map(it => ({ skuId: it.skuId, count: it.count }))
+      params.deliveryTimeType = 1
+      params.payType = 1
+      params.payChannel = 1
+      params.buyerMessage = ''
+      const { id: orderId } = await submitOrderApi(params)
+      if (orderId) {
+        // 清除购物车
+        store.commit('cart/setCart', [])
+        router.push({ name: 'pay', query: { orderId } })
+      }
+    }
 
     /**
      * 获取收货地址列表
@@ -117,11 +145,13 @@ export default {
       order.value = await findCheckoutInfoApi()
       goods.value = order.value.goods
       summary.value = order.value.summary
+      userAddresses.value = order.value.userAddresses
     }
 
     return {
       goods,
-      summary
+      summary,
+      submitOrder
     }
   }
 }

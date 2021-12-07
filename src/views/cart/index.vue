@@ -99,7 +99,7 @@
         <div class='total'>
           共 {{ validTotal }} 件商品，已选择 {{ selectedTotal }} 件，商品合计：
           <span class='red'>¥{{ selectedAmount }}</span>
-          <CButton type='primary' @click='$router.push({name: "pay-checkout"})'>下单结算</CButton>
+          <CButton type='primary' @click='toPageOrder'>下单结算</CButton>
         </div>
       </div>
       <!-- 猜你喜欢 -->
@@ -112,12 +112,15 @@ import GoodRelevant from '@/views/goods/components/goods-relevant'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import CartSku from '@/views/cart/components/cart-sku'
+import message from '@/components/library/message'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'CCartPage',
   components: { CartSku, GoodRelevant },
   setup() {
     const store = useStore()
+    const router = useRouter()
     const validList = computed(() => store.getters['cart/validList'])
     const invalidList = computed(() => store.getters['cart/invalidList'])
     // 有效商品总数
@@ -161,6 +164,14 @@ export default {
     const handleClearInvalidCartList = () => {
       store.dispatch('cart/deleteCartAll', 'invalid')
     }
+    // 事件: 跳转到填写订单页面
+    const toPageOrder = () => {
+      if (selectedList.value.length === 0) {
+        message.warn({ text: '请至少选择一个商品' })
+        return
+      }
+      router.push({ name: 'pay-checkout' })
+    }
     return {
       validList,
       invalidList,
@@ -176,7 +187,8 @@ export default {
       handleChangeItemNum,
       handleDeleteItem,
       handleClearCartList,
-      handleClearInvalidCartList
+      handleClearInvalidCartList,
+      toPageOrder
     }
   }
 }
