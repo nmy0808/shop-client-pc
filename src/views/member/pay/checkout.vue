@@ -25,21 +25,21 @@
               <th width='170'>实付</th>
             </tr>
             </thead>
-            <tbody>
-            <tr v-for='i in 4' :key='i'>
+            <tbody v-if='goods'>
+            <tr v-for='item in goods' :key='item.skuId'>
               <td>
                 <a href='javascript:;' class='info'>
-                  <img src='https://yanxuan-item.nosdn.127.net/cd9b2550cde8bdf98c9d083d807474ce.png' alt=''>
+                  <img :src='item.picture' alt=''>
                   <div class='right'>
-                    <p>轻巧多用锅雪平锅 麦饭石不粘小奶锅煮锅</p>
-                    <p>颜色：白色 尺寸：10cm 产地：日本</p>
+                    <p>{{ item.name }}</p>
+                    <p>{{ item.attrsText }}</p>
                   </div>
                 </a>
               </td>
-              <td>&yen;100.00</td>
-              <td>2</td>
-              <td>&yen;200.00</td>
-              <td>&yen;200.00</td>
+              <td>&yen;{{ item.price }}</td>
+              <td>{{ item.count }}</td>
+              <td>&yen;{{ item.totalPrice }}</td>
+              <td>&yen;{{ item.totalPayPrice }}</td>
             </tr>
             </tbody>
           </table>
@@ -60,23 +60,23 @@
         </div>
         <!-- 金额明细 -->
         <h3 class='box-title'>金额明细</h3>
-        <div class='box-body'>
+        <div class='box-body' v-if='summary'>
           <div class='total'>
             <dl>
               <dt>商品件数：</dt>
-              <dd>5件</dd>
+              <dd>{{ summary.goodsCount }}件</dd>
             </dl>
             <dl>
               <dt>商品总价：</dt>
-              <dd>¥5697.00</dd>
+              <dd>¥{{ summary.totalPrice }}</dd>
             </dl>
             <dl>
               <dt>运<i></i>费：</dt>
-              <dd>¥0.00</dd>
+              <dd>¥{{ summary.postFee }}</dd>
             </dl>
             <dl>
               <dt>应付总额：</dt>
-              <dd class='price'>¥5697.00</dd>
+              <dd class='price'>¥{{ summary.totalPayPrice }}</dd>
             </dl>
           </div>
         </div>
@@ -91,13 +91,15 @@
 <script>
 import CheckoutAddress from '@/views/member/pay/components/checkout-address'
 import { findCheckoutInfoApi } from '@/api/order'
-import { provide, reactive, ref } from 'vue'
+import { computed, provide, ref } from 'vue'
 
 export default {
   name: 'CPayCheckoutPage',
   components: { CheckoutAddress },
   setup() {
     const order = ref(null)
+    const goods = ref(null)
+    const summary = ref(null)
     // order参数: {goods, summary, userAddresses}
     provide('order', order)
     provide('getOrderInfo', getOrderInfo)
@@ -111,10 +113,15 @@ export default {
      */
     async function getOrderInfo() {
       order.value = await findCheckoutInfoApi()
+      goods.value = order.value.goods
+      summary.value = order.value.summary
       console.log(order.value, '???')
     }
 
-    return {}
+    return {
+      goods,
+      summary
+    }
   }
 }
 </script>

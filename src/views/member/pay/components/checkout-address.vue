@@ -58,7 +58,7 @@
         <div class='c-form-item'>
           <div class='label'>地区：</div>
           <div class='field'>
-            <CCity :fullLocation='addressFrom.fullLocation' @change='handleAddressChange' />
+            <CCity :fullLocation='addressFrom.fullLocation || "请选择收货地址"' @change='handleAddressChange' />
           </div>
         </div>
         <div class='c-form-item'>
