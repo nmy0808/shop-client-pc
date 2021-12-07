@@ -90,10 +90,32 @@
 </template>
 <script>
 import CheckoutAddress from '@/views/member/pay/components/checkout-address'
+import { findCheckoutInfoApi } from '@/api/order'
+import { provide, reactive, ref } from 'vue'
 
 export default {
   name: 'CPayCheckoutPage',
-  components: { CheckoutAddress }
+  components: { CheckoutAddress },
+  setup() {
+    const order = ref(null)
+    // order参数: {goods, summary, userAddresses}
+    provide('order', order)
+    provide('getOrderInfo', getOrderInfo)
+
+    // 初始化获取订单信息
+    getOrderInfo()
+
+    /**
+     * 获取收货地址列表
+     * @returns {Promise<void>}
+     */
+    async function getOrderInfo() {
+      order.value = await findCheckoutInfoApi()
+      console.log(order.value, '???')
+    }
+
+    return {}
+  }
 }
 </script>
 <style scoped lang='less'>

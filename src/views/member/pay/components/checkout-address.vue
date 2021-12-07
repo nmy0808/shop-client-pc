@@ -1,17 +1,17 @@
 <template>
   <div class='checkout-address'>
     <div class='text'>
-      <!-- <div class="none">您需要先添加收货地址才可提交订单。</div> -->
-      <ul v-if='defaultAddress'>
+      <div v-if='!defaultAddress' class='none'>您需要先添加收货地址才可提交订单。</div>
+      <ul v-else>
         <li><span>收<i />货<i />人：</span>{{ defaultAddress.receiver }}</li>
         <li><span>联系方式：</span>{{ defaultAddress.contact }}</li>
-        <li><span>收货地址：</span>{{ defaultAddress.address }}</li>
+        <li><span>收货地址：</span>{{ defaultAddress.fullLocation }}</li>
       </ul>
-      <a href='javascript:;'>修改地址</a>
+      <a href='javascript:;' @click='handleOpenAddDialog("edit")'>修改地址</a>
     </div>
     <div class='action'>
       <CButton class='btn' @click='handleOpenListDialog'>切换地址</CButton>
-      <CButton class='btn'>添加地址</CButton>
+      <CButton class='btn' @click='handleOpenAddDialog("add")'>添加地址</CButton>
     </div>
   </div>
   <!--  收货地址列表-->
@@ -35,10 +35,57 @@
       </div>
     </div>
   </c-dialog>
+  <!--  添加地址-->
+  <c-dialog
+    v-model='addVisible'
+    title='添加地址'
+    @confirm='handleAddConfirmDialog'
+    @cancel='handleAddCancelDialog'>
+    <div class='address-edit'>
+      <div class='xtx-form'>
+        <div class='c-form-item'>
+          <div class='label'>收货人：</div>
+          <div class='field'>
+            <input class='input' v-model='addressFrom.receiver' placeholder='请输入收货人' />
+          </div>
+        </div>
+        <div class='c-form-item'>
+          <div class='label'>手机号：</div>
+          <div class='field'>
+            <input class='input' v-model='addressFrom.contact' placeholder='请输入手机号' />
+          </div>
+        </div>
+        <div class='c-form-item'>
+          <div class='label'>地区：</div>
+          <div class='field'>
+            <CCity :fullLocation='addressFrom.fullLocation' @change='handleAddressChange' />
+          </div>
+        </div>
+        <div class='c-form-item'>
+          <div class='label'>详细地址：</div>
+          <div class='field'>
+            <input class='input' placeholder='请输入详细地址' v-model='addressFrom.address' />
+          </div>
+        </div>
+        <div class='c-form-item'>
+          <div class='label'>邮政编码：</div>
+          <div class='field'>
+            <input class='input' v-model='addressFrom.postalCode' placeholder='请输入邮政编码' />
+          </div>
+        </div>
+        <div class='c-form-item'>
+          <div class='label'>地址标签：</div>
+          <div class='field'>
+            <input class='input' v-model='addressFrom.addressTags' placeholder='请输入地址标签，逗号分隔' />
+          </div>
+        </div>
+      </div>
+    </div>
+  </c-dialog>
 </template>
 <script>
-import { getAddressListApi, updateAddressApi } from '@/api/address'
-import { computed, ref } from 'vue'
+import { insertAddressApi, updateAddressApi } from '@/api/address'
+import { computed, inject, reactive, ref } from 'vue'
 import CDialog from '@/components/library/c-dialog'
 
 export default {
@@ -46,17 +93,30 @@ export default {
   components: { CDialog },
   setup() {
     // data
-    const list = ref(null)
+    const orderInfo = inject('order')
+    const list = computed(() => orderInfo.value?.userAddresses)
+    const getOrderInfo = inject('getOrderInfo')
     const listVisible = ref(false)
+    const addVisible = ref(false)
+    const actionType = ref('')
     // - 默认地址
     const defaultAddress = computed(() => list.value?.find(it => it.isDefault === 0))
     // - 当前dialog选中的地址
     const selectedAddress = ref(null)
     // - 计算当前dialog组件应该显示什么地址
     const calcDefaultAddress = computed(() => selectedAddress.value ? selectedAddress.value : defaultAddress.value)
-    // 初始化
-    // - 初始化地址列表
-    getAddressList()
+    // - 购物车form
+    const addressFrom = reactive({
+      receiver: '', // 收货人姓名
+      contact: '', // 联系方式
+      provinceCode: '', // 所在省份编码
+      cityCode: '', // 所在城市编码
+      countyCode: '', // 所在区/县编码
+      address: '', // 详细地址
+      postalCode: '', // 邮政编码
+      addressTags: '', // 地址标签,以英文逗号分割
+      isDefault: '' // 是否为默认，0为是，1为否
+    })
 
     // 事件方法
     // 地址列表dialog - 打开
@@ -81,6 +141,39 @@ export default {
     const handleCancelListDialog = () => {
       selectedAddress.value = null
     }
+    // 添加/编辑地址dialog - 打开
+    const handleOpenAddDialog = (type) => {
+      actionType.value = type
+      if (type === 'edit') {
+        Object.assign(addressFrom, JSON.parse(JSON.stringify(defaultAddress.value)))
+      }
+      addVisible.value = true
+    }
+    // 添加地址dialog - 确认
+    const handleAddConfirmDialog = async () => {
+      if (actionType.value === 'add') {
+        // 添加收货地址
+        await insertAddress()
+      } else {
+        // 编辑收货地址
+        await editAddress()
+      }
+      // 刷新地址列表
+      await getAddressList()
+      actionType.value = ''
+      resetAddressForm()
+    }
+    // 添加地址dialog - 取消
+    const handleAddCancelDialog = () => {
+      actionType.value = ''
+      resetAddressForm()
+    }
+    // 更改省市区
+    const handleAddressChange = (data) => {
+      addressFrom.provinceCode = data.provinceCode
+      addressFrom.cityCode = data.cityCode
+      addressFrom.countyCode = data.countyCode
+    }
 
     // api方法
     /**
@@ -88,8 +181,7 @@ export default {
      * @returns {Promise<void>}
      */
     async function getAddressList() {
-      list.value = await getAddressListApi()
-      console.log(list.value)
+      getOrderInfo()
     }
 
     // 设置当前默认的收货地址
@@ -112,6 +204,23 @@ export default {
       })
     }
 
+    // 添加收货地址
+    async function insertAddress() {
+      return insertAddressApi(JSON.parse(JSON.stringify(addressFrom)))
+    }
+
+    // 编辑收货地址
+    async function editAddress() {
+      return updateAddressApi(JSON.parse(JSON.stringify(addressFrom)))
+    }
+
+    // 重置addressForm
+    function resetAddressForm() {
+      for (const key in addressFrom) {
+        addressFrom[key] = ''
+      }
+    }
+
     return {
       // 切换地址
       defaultAddress,
@@ -121,8 +230,14 @@ export default {
       handleOpenListDialog,
       handleConfirmListDialog,
       handleCancelListDialog,
-      handleSelectedDefaultAddress
+      handleSelectedDefaultAddress,
       // 添加地址
+      addressFrom: addressFrom,
+      addVisible,
+      handleAddCancelDialog,
+      handleAddConfirmDialog,
+      handleOpenAddDialog,
+      handleAddressChange
     }
   }
 }
