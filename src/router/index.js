@@ -37,6 +37,29 @@ const routes = [
         path: '/member/pay',
         name: 'pay',
         component: () => import('@/views/member/pay/index.vue')
+      },
+      {
+        path: '/member/checkout',
+        name: 'pay-checkout',
+        component: () => import('@/views/member/pay/checkout.vue')
+      },
+      {
+        path: '/pay/callback',
+        name: 'pay-callback',
+        component: () => import('@/views/member/pay/callback.vue')
+      },
+      {
+        path: '/member',
+        name: 'member',
+        component: () => import('@/views/member/Layout'),
+        redirect: { name: 'member-home' },
+        children: [
+          {
+            path: 'home',
+            name: 'member-home',
+            component: () => import('@/views/member/home/index')
+          }
+        ]
       }
     ]
   },
