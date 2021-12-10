@@ -58,6 +58,24 @@ const routes = [
             path: 'home',
             name: 'member-home',
             component: () => import('@/views/member/home/index')
+          },
+          {
+            path: 'order',
+            name: 'member-order',
+            component: () => import('@/views/member/order/index'),
+            redirect: { name: 'member-order-home' },
+            children: [
+              {
+                path: '',
+                name: 'order',
+                component: () => import('@/views/member/order/components/order-home')
+              },
+              {
+                path: ':id',
+                name: 'order-detail',
+                component: () => import('@/views/member/order/components/order-detail')
+              }
+            ]
           }
         ]
       }

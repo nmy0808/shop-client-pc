@@ -1,36 +1,36 @@
 <template>
-  <div class="c-member-aside">
-    <div class="user-manage">
+  <div class='c-member-aside'>
+    <div class='user-manage'>
       <h4>我的账户</h4>
-      <div class="links">
-        <a href="javascript:;">个人中心</a>
-        <a href="javascript:;">消息通知</a>
-        <a href="javascript:;">个人信息</a>
-        <a href="javascript:;">安全设置</a>
-        <a href="javascript:;">地址管理</a>
-        <a href="javascript:;">我的积分</a>
-        <a href="javascript:;">我的足迹</a>
-        <a href="javascript:;">邀请有礼</a>
-        <a href="javascript:;">幸运抽奖</a>
+      <div class='links'>
+        <router-link exact-active-class='active' :to='{name:"member-home"}'>个人中心</router-link>
+        <a href='javascript:;'>消息通知</a>
+        <a href='javascript:;'>个人信息</a>
+        <a href='javascript:;'>安全设置</a>
+        <a href='javascript:;'>地址管理</a>
+        <a href='javascript:;'>我的积分</a>
+        <a href='javascript:;'>我的足迹</a>
+        <a href='javascript:;'>邀请有礼</a>
+        <a href='javascript:;'>幸运抽奖</a>
       </div>
       <h4>交易管理</h4>
-      <div class="links">
-        <a href="javascript:;">我的订单</a>
-        <a href="javascript:;">优惠券</a>
-        <a href="javascript:;">礼品卡</a>
-        <a href="javascript:;">评价晒单</a>
-        <a href="javascript:;">售后服务</a>
+      <div class='links'>
+        <router-link active-class='active' :to='{name:"order"}'>我的订单</router-link>
+        <a href='javascript:;'>优惠券</a>
+        <a href='javascript:;'>礼品卡</a>
+        <a href='javascript:;'>评价晒单</a>
+        <a href='javascript:;'>售后服务</a>
       </div>
       <h4>我的收藏</h4>
-      <div class="links">
-        <a href="javascript:;">收藏的商品</a>
-        <a href="javascript:;">收藏的专题</a>
-        <a href="javascript:;">关注的品牌</a>
+      <div class='links'>
+        <a href='javascript:;'>收藏的商品</a>
+        <a href='javascript:;'>收藏的专题</a>
+        <a href='javascript:;'>关注的品牌</a>
       </div>
       <h4>帮助中心</h4>
-      <div class="links">
-        <a href="javascript:;">帮助中心</a>
-        <a href="javascript:;">在线客服</a>
+      <div class='links'>
+        <a href='javascript:;'>帮助中心</a>
+        <a href='javascript:;'>在线客服</a>
       </div>
     </div>
   </div>
@@ -47,8 +47,10 @@ export default {
   width: 220px;
   margin-right: 20px;
   border-radius: 2px;
+
   .user-manage {
     background-color: #fff;
+
     h4 {
       font-size: 18px;
       font-weight: 400;
@@ -68,9 +70,10 @@ export default {
       color: #666;
       position: relative;
 
-      &:hover{
+      &:hover {
         color: @mainColor;
       }
+
       &.active {
         color: @mainColor;
 
