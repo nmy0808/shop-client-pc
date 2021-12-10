@@ -3,8 +3,9 @@
     <HomePanel :title='item.name' v-for='item in list' :key='item.id'>
       <template v-slot:right>
         <div class='sub'>
-          <RouterLink to='/' v-for='sub in item.children'
-                      :key='sub.id'>{{sub.name}}</RouterLink>
+          <RouterLink :to='{name:"category", params: {id: item.id}}' v-for='sub in item.children'
+                      :key='sub.id'>{{ sub.name }}
+          </RouterLink>
         </div>
         <c-more />
       </template>
@@ -12,13 +13,13 @@
         <RouterLink class='cover' to='/'>
           <img :src='item.picture' alt=''>
           <strong class='label'>
-            <span>{{item.name}}</span>
-            <span>{{item.saleInfo}}</span>
+            <span>{{ item.name }}</span>
+            <span>{{ item.saleInfo }}</span>
           </strong>
         </RouterLink>
         <ul class='goods-list'>
           <li v-for='good in item.goods' :key='good.id'>
-            <HomeGoods :data='good'/>
+            <HomeGoods :data='good' />
           </li>
         </ul>
       </div>

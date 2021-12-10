@@ -1,41 +1,45 @@
 <template>
-  <div class='home-category' @mouseleave="currentMenu = {}">
-    <ul class="menu">
-      <li v-for="menu in menus" :class="{active: currentMenu.id && currentMenu.id === menu.id }" :key="menu.id"
-          @mouseenter="handleMenuActive(menu)">
-        <RouterLink to="/">{{ menu.name }}</RouterLink>
-        <template v-if="menu.children">
-          <RouterLink v-for="it in menu.children" :key="it.id" to="/">{{ it.name }}</RouterLink>
+  <div class='home-category' @mouseleave='currentMenu = {}'>
+    <ul class='menu'>
+      <li v-for='menu in menus' :class='{active: currentMenu.id && currentMenu.id === menu.id }' :key='menu.id'
+          @mouseenter='handleMenuActive(menu)'>
+        <RouterLink to='/'>{{ menu.name }}</RouterLink>
+        <template v-if='menu.children'>
+          <RouterLink v-for='it in menu.children' :key='it.id' to='/'>{{ it.name
+            }}
+          </RouterLink>
         </template>
         <template v-else>
-          <c-skeleton width="50px" height="20px" bg="rgba(255,255,255,0.1)" gutter="5px" animate-type="fade"></c-skeleton>
-          <c-skeleton width="50px" height="20px" bg="rgba(255,255,255,0.1)" gutter="5px" animate-type="fade"></c-skeleton>
+          <c-skeleton width='50px' height='20px' bg='rgba(255,255,255,0.1)' gutter='5px'
+                      animate-type='fade'></c-skeleton>
+          <c-skeleton width='50px' height='20px' bg='rgba(255,255,255,0.1)' gutter='5px'
+                      animate-type='fade'></c-skeleton>
         </template>
       </li>
     </ul>
     <!-- 弹层 -->
-    <div class="layer">
+    <div class='layer'>
       <h4>{{ currentMenu.id !== 'brand' ? '分类' : '品牌' }}推荐 <small>根据您的购买或浏览记录推荐</small></h4>
       <ul v-show="currentMenu.goods && currentMenu.id !=='brand'">
-        <li v-for="item in currentMenu.goods" :key="item.id">
-          <RouterLink to="/">
-            <img :src="item.picture" :alt="item.desc">
-            <div class="info">
-              <p class="name ellipsis-2">{{ item.name }}</p>
-              <p class="desc ellipsis">{{ item.desc }}</p>
-              <p class="price"><i>¥</i>{{ item.price }}</p>
+        <li v-for='item in currentMenu.goods' :key='item.id'>
+          <RouterLink :to="{name: 'product', params: {id: item.id}}">
+            <img :src='item.picture' :alt='item.desc'>
+            <div class='info'>
+              <p class='name ellipsis-2'>{{ item.name }}</p>
+              <p class='desc ellipsis'>{{ item.desc }}</p>
+              <p class='price'><i>¥</i>{{ item.price }}</p>
             </div>
           </RouterLink>
         </li>
       </ul>
       <ul v-show="currentMenu.id ==='brand'">
-        <li class="brand" v-for="item in brands" :key="item.id">
-          <RouterLink to="/">
-            <img :src="item.logo" alt="">
-            <div class="info">
-              <p class="place"><i class="iconfont icon-dingwei"></i>{{ item.item }}</p>
-              <p class="name ellipsis">{{ item.name }}</p>
-              <p class="desc ellipsis-2">{{ item.desc }}</p>
+        <li class='brand' v-for='item in brands' :key='item.id'>
+          <RouterLink :to="{name: 'product', params: {id: item.id}}">
+            <img :src='item.logo' alt=''>
+            <div class='info'>
+              <p class='place'><i class='iconfont icon-dingwei'></i>{{ item.item }}</p>
+              <p class='name ellipsis'>{{ item.name }}</p>
+              <p class='desc ellipsis-2'>{{ item.desc }}</p>
             </div>
           </RouterLink>
         </li>
@@ -53,7 +57,7 @@ import CSkeleton from '@/components/library/c-skeleton'
 export default {
   name: 'HomeCategory',
   components: { CSkeleton },
-  setup () {
+  setup() {
     const store = useStore()
     const currentMenu = ref({}) // 当前激活的菜单
     const brands = ref([]) // 品牌列表

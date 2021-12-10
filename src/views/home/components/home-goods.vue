@@ -1,6 +1,6 @@
 <template>
   <div class='goods-item' ref='target'>
-    <RouterLink to='/' class='image'>
+    <RouterLink :to='{name:"product", params: {id: data.id}}' class='image'>
       <img :src='data.picture' alt=''>
     </RouterLink>
     <p class='name ellipsis-2'>{{data.name}}</p>

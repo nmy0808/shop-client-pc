@@ -7,7 +7,7 @@
       <!-- 面板内容 -->
       <ul class="goods-list" v-if="list.length>0">
         <li v-for="item in list" :key="item.id">
-          <RouterLink to="/">
+          <RouterLink :to='{name:"product", params: {id: item.id}}'>
             <img v-lazy="item.picture" alt="">
             <p class="name ellipsis">{{ item.name }}</p>
             <p class="price">&yen;{{ item.price }}</p>
