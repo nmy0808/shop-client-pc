@@ -50,3 +50,11 @@ export const cancelOrderApi = ({ id, cancelReason }) => {
 export const deleteOrderApi = (ids) => {
   return request.delete('/member/order', { ids })
 }
+/**
+ * 查看物流
+ * @param id
+ * @returns {*}
+ */
+export const findLogisticsApi = (id) => {
+  return request.get(`/member/order/${id}/logistics`)
+}

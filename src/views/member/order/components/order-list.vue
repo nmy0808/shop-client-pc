@@ -1,11 +1,16 @@
 <template>
   <div class='order-list'>
-    <order-item :order='item' v-for='item in list' :key='item.id'
-                @cancel-order='handleCancelOrder'
-                @delete-order='handleDeleteOrder'
+    <order-item
+      :order='item'
+      v-for='item in list'
+      :key='item.id'
+      @cancel-order='handleCancelOrder'
+      @delete-order='handleDeleteOrder'
+      @find-logistics='handleFindLogistics'
     />
     <teleport to='body'>
       <order-cancel ref='cancelCom' />
+      <order-logistics ref='logCom' />
     </teleport>
   </div>
 </template>
@@ -15,6 +20,7 @@ import OrderCancel from '@/views/member/order/components/order-cancel'
 import Confirm from '@/components/library/confirm'
 import { inject, ref } from 'vue'
 import { deleteOrderApi } from '@/api/order'
+import OrderLogistics from '@/views/member/order/components/order-logistics'
 
 export default {
   name: 'order-list',
@@ -24,12 +30,14 @@ export default {
       default: () => []
     }
   },
-  components: { OrderCancel, OrderItem },
+  components: { OrderLogistics, OrderCancel, OrderItem },
   setup() {
     // reject: 获取订单列表
     const findOrderList = inject('findOrderList')
-    // 组件: 取消dialog组件
+    // 获取组件: 取消dialog组件
     const cancelCom = ref(null)
+    // 获取组件: 物流dialog组件
+    const logCom = ref(null)
     // 事件: 打开取消订单弹窗
     const handleCancelOrder = (order) => {
       cancelCom.value.open(order)
@@ -46,10 +54,16 @@ export default {
         .catch(res => {
         })
     }
+    // 事件: 查看物流
+    const handleFindLogistics = (order) => {
+      logCom.value.open(order)
+    }
     return {
       cancelCom,
+      logCom,
       handleCancelOrder,
-      handleDeleteOrder
+      handleDeleteOrder,
+      handleFindLogistics
     }
   }
 }

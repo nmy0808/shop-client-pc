@@ -32,7 +32,7 @@
         <!-- 待收货：查看物流 -->
         <!-- 待评价：评价商品 -->
         <!-- 已完成：查看评价 -->
-        <p v-if='order.orderState===3'><a href='javascript:;' class='green'>查看物流</a></p>
+        <p v-if='order.orderState===3'><a href='javascript:;' class='green' @click='handleFindLogistics'>查看物流</a></p>
         <p v-if='order.orderState===4'><a href='javascript:;' class='green'>评价商品</a></p>
         <p v-if='order.orderState===5'><a href='javascript:;' class='green'>查看评价</a></p>
       </div>
@@ -60,13 +60,12 @@
 </template>
 <script>
 import { orderStatus } from '@/api/constants'
-import { ref } from 'vue'
 import useCountdown from '@/hook/useCountdown'
-import OrderCancel from '@/views/member/order/components/order-cancel'
+import { findLogisticsApi } from '@/api/order'
 
 export default {
   name: 'OrderItem',
-  emits: ['cancel-order', 'delete-order'],
+  emits: ['cancel-order', 'delete-order', 'find-logistics'],
   props: {
     order: {
       type: Object,
@@ -84,11 +83,16 @@ export default {
     const handleDeleteOrder = () => {
       emit('delete-order', props.order)
     }
+    // 事件: 查看物流
+    const handleFindLogistics = () => {
+      emit('find-logistics', props.order)
+    }
     return {
       orderStatus,
       countdownText,
       handleCancelOrder,
-      handleDeleteOrder
+      handleDeleteOrder,
+      handleFindLogistics
     }
   }
 }
