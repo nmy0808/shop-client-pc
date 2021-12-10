@@ -13,8 +13,8 @@
   <div>
     <order-list :list='list' @currentChange='handlePageChange'></order-list>
   </div>
-  <c-pagination v-if='listParams.total'
-                :total='listParams.total'
+  <c-pagination v-if='total'
+                :total='total'
                 :current-page='listParams.page'
                 @currentChange='handlePageChange' />
 </template>
@@ -33,15 +33,17 @@ export default {
   setup() {
     // provide: 设置订单项的状态
     provide('setOrderSate', setOrderSate)
+    // provide: 获取订单列表
+    provide('findOrderList', findOrderList)
     const currentMenu = ref('all')
     // orderState 订单状态: 1为待付款、2为待发货、3为待收货、4为待评价、5为已完成、6为已取消，未传该参数或0为全部
     // 获取订单列表参数对象
     const listParams = ref({
       orderState: 0,
       page: 1,
-      pageSize: 10,
-      total: 0
+      pageSize: 10
     })
+    const total = ref(0)
     // 属性: 订单列表
     const list = ref(null)
 
@@ -67,7 +69,7 @@ export default {
     async function findOrderList() {
       const { items, counts } = await findOrderListApi(listParams.value)
       list.value = items
-      listParams.value.total = counts
+      total.value = counts
     }
 
     // provide: 设置当前某一订单的状态
@@ -80,6 +82,7 @@ export default {
 
     return {
       currentMenu,
+      total,
       list,
       handleMenuChange,
       handlePageChange,

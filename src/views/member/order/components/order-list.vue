@@ -1,7 +1,8 @@
 <template>
   <div class='order-list'>
     <order-item :order='item' v-for='item in list' :key='item.id'
-                @open-cancel-dialog='handleOpenCancel'
+                @cancel-order='handleCancelOrder'
+                @delete-order='handleDeleteOrder'
     />
     <teleport to='body'>
       <order-cancel ref='cancelCom' />
@@ -11,7 +12,9 @@
 <script>
 import OrderItem from '@/views/member/order/components/order-item'
 import OrderCancel from '@/views/member/order/components/order-cancel'
-import { ref } from 'vue'
+import Confirm from '@/components/library/confirm'
+import { inject, ref } from 'vue'
+import { deleteOrderApi } from '@/api/order'
 
 export default {
   name: 'order-list',
@@ -23,14 +26,30 @@ export default {
   },
   components: { OrderCancel, OrderItem },
   setup() {
+    // reject: 获取订单列表
+    const findOrderList = inject('findOrderList')
+    // 组件: 取消dialog组件
     const cancelCom = ref(null)
     // 事件: 打开取消订单弹窗
-    const handleOpenCancel = (order) => {
+    const handleCancelOrder = (order) => {
       cancelCom.value.open(order)
+    }
+    // 事件: 删除订单
+    const handleDeleteOrder = (order) => {
+      Confirm({ title: '删除订单', text: '确认删除订单吗?' })
+        .then(async (res) => {
+          // 请求: 删除该订单
+          await deleteOrderApi([order.id])
+          // 请求: 获取最新订单列表
+          findOrderList()
+        })
+        .catch(res => {
+        })
     }
     return {
       cancelCom,
-      handleOpenCancel
+      handleCancelOrder,
+      handleDeleteOrder
     }
   }
 }

@@ -9,7 +9,7 @@
         <b>付款截止：{{ countdownText }}</b>
       </span>
       <!-- 已完成 已取消 -->
-      <a v-if='[5,6].includes(order.orederState)' href='javascript:;' class='del'>删除</a>
+      <a v-if='[5,6].includes(order.orderState)' href='javascript:;' class='del' @click='handleDeleteOrder'>删除</a>
     </div>
     <div class='body'>
       <div class='column goods'>
@@ -59,14 +59,14 @@
   </div>
 </template>
 <script>
-import { topCategory as orderStatus } from '@/api/constants'
+import { orderStatus } from '@/api/constants'
 import { ref } from 'vue'
 import useCountdown from '@/hook/useCountdown'
 import OrderCancel from '@/views/member/order/components/order-cancel'
 
 export default {
   name: 'OrderItem',
-  emits: ['open-cancel-dialog'],
+  emits: ['cancel-order', 'delete-order'],
   props: {
     order: {
       type: Object,
@@ -78,13 +78,17 @@ export default {
     start(props.order.countdown)
     // 事件: 取消订单
     const handleCancelOrder = () => {
-      // cancelCom.value.open(props.order)
-      emit('open-cancel-dialog', props.order)
+      emit('cancel-order', props.order)
+    }
+    // 事件: 删除订单
+    const handleDeleteOrder = () => {
+      emit('delete-order', props.order)
     }
     return {
       orderStatus,
       countdownText,
-      handleCancelOrder
+      handleCancelOrder,
+      handleDeleteOrder
     }
   }
 }

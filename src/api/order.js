@@ -42,3 +42,11 @@ export const findOrderListApi = ({ orderState, page, pageSize }) => {
 export const cancelOrderApi = ({ id, cancelReason }) => {
   return request.put(`/member/order/${id}/cancel`, { cancelReason })
 }
+/**
+ * 删除订单
+ * @param ids {Array}
+ * @returns {*}
+ */
+export const deleteOrderApi = (ids) => {
+  return request.delete('/member/order', { ids })
+}
