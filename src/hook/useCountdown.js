@@ -16,7 +16,7 @@ function fn() {
   // 参数: 剩余秒
   const start = (time) => {
     countdown = time
-    countdownText.value = unix(countdown).format('mm分ss秒')
+    countdownText.value = countdown < 0 ? '已失效' : unix(countdown).format('mm分ss秒')
     countdown > 0 && resume()
   }
   onUnmounted(() => {
