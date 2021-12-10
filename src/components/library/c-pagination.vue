@@ -10,7 +10,7 @@
 </template>
 <script>
 import { computed } from 'vue'
-
+// com-分页组件
 export default {
   name: 'CPagination',
   props: {

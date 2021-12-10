@@ -1,27 +1,36 @@
 <template>
   <div class='order-list'>
-    <order-item :order='item' v-for='item in list' :key='item.id' />
+    <order-item :order='item' v-for='item in list' :key='item.id'
+                @open-cancel-dialog='handleOpenCancel'
+    />
+    <teleport to='body'>
+      <order-cancel ref='cancelCom' />
+    </teleport>
   </div>
 </template>
 <script>
-import { findOrderListApi } from '@/api/order'
-import { ref } from 'vue'
 import OrderItem from '@/views/member/order/components/order-item'
+import OrderCancel from '@/views/member/order/components/order-cancel'
+import { ref } from 'vue'
 
 export default {
   name: 'order-list',
-  components: { OrderItem },
-  setup() {
-    const list = ref(null)
-    findOrderList()
-
-    async function findOrderList() {
-      const { items } = await findOrderListApi({ orderState: 0, page: 1, pageSize: 10 })
-      list.value = items
+  props: {
+    list: {
+      type: Array,
+      default: () => []
     }
-
+  },
+  components: { OrderCancel, OrderItem },
+  setup() {
+    const cancelCom = ref(null)
+    // 事件: 打开取消订单弹窗
+    const handleOpenCancel = (order) => {
+      cancelCom.value.open(order)
+    }
     return {
-      list
+      cancelCom,
+      handleOpenCancel
     }
   }
 }

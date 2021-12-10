@@ -1,5 +1,5 @@
 import request from '@/uitls/request'
-// 订单api
+// api-订单
 /**
  * 获取结算信息
  */
@@ -19,6 +19,7 @@ export const submitOrderApi = (params) => {
  * @param {Object} id
  * @returns {*}
  */
+// orderState 订单状态: 1为待付款、2为待发货、3为待收货、4为待评价、5为已完成、6为已取消，未传该参数或0为全部
 export const getOrderInfoByIdApi = ({ id }) => {
   return request.get('/member/order/' + id, {})
 }
@@ -32,4 +33,12 @@ export const getOrderInfoByIdApi = ({ id }) => {
  */
 export const findOrderListApi = ({ orderState, page, pageSize }) => {
   return request.get('/member/order', { orderState, page, pageSize })
+}
+/**
+ * 取消订单列表
+ * @param id {Object} {id, cancelReason}
+ * @returns {*}
+ */
+export const cancelOrderApi = ({ id, cancelReason }) => {
+  return request.put(`/member/order/${id}/cancel`, { cancelReason })
 }

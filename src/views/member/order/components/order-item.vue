@@ -51,7 +51,7 @@
         <CButton v-if='order.orderState===1' type='primary' size='small'>立即付款</CButton>
         <CButton v-if='order.orderState===3' type='primary' size='small'>确认收货</CButton>
         <p><a href='javascript:;'>查看详情</a></p>
-        <p v-if='order.orderState===1'><a href='javascript:;'>取消订单</a></p>
+        <p v-if='order.orderState===1'><a href='javascript:;' @click='handleCancelOrder'>取消订单</a></p>
         <p v-if='[2,3,4,5].includes(order.orderState)'><a href='javascript:;'>再次购买</a></p>
         <p v-if='[4,5].includes(order.orderState)'><a href='javascript:;'>申请售后</a></p>
       </div>
@@ -62,19 +62,30 @@
 import { topCategory as orderStatus } from '@/api/constants'
 import { ref } from 'vue'
 import useCountdown from '@/hook/useCountdown'
+import OrderCancel from '@/views/member/order/components/order-cancel'
 
 export default {
   name: 'OrderItem',
+  emits: ['open-cancel-dialog'],
   props: {
     order: {
       type: Object,
       default: () => ({})
     }
   },
-  setup(props) {
+  setup(props, { emit }) {
     const { start, countdownText } = useCountdown()
     start(props.order.countdown)
-    return { orderStatus, countdownText }
+    // 事件: 取消订单
+    const handleCancelOrder = () => {
+      // cancelCom.value.open(props.order)
+      emit('open-cancel-dialog', props.order)
+    }
+    return {
+      orderStatus,
+      countdownText,
+      handleCancelOrder
+    }
   }
 }
 </script>

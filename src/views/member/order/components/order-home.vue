@@ -11,28 +11,79 @@
     </c-tabs>
   </div>
   <div>
-    <order-list></order-list>
+    <order-list :list='list' @currentChange='handlePageChange'></order-list>
   </div>
+  <c-pagination v-if='listParams.total'
+                :total='listParams.total'
+                :current-page='listParams.page'
+                @currentChange='handlePageChange' />
 </template>
 
 <script>
 import CTabs from '@/components/library/c-tab'
 import CTabsPanel from '@/components/library/c-tab-panel'
-import { ref } from 'vue'
+import { provide, ref, watch } from 'vue'
 import OrderList from '@/views/member/order/components/order-list'
+import CPagination from '@/components/library/c-pagination'
+import { findOrderListApi } from '@/api/order'
 
 export default {
   name: 'order-home',
-  components: { OrderList, CTabsPanel, CTabs },
+  components: { CPagination, OrderList, CTabsPanel, CTabs },
   setup() {
+    // provide: 设置订单项的状态
+    provide('setOrderSate', setOrderSate)
     const currentMenu = ref('all')
-    //
+    // orderState 订单状态: 1为待付款、2为待发货、3为待收货、4为待评价、5为已完成、6为已取消，未传该参数或0为全部
+    // 获取订单列表参数对象
+    const listParams = ref({
+      orderState: 0,
+      page: 1,
+      pageSize: 10,
+      total: 0
+    })
+    // 属性: 订单列表
+    const list = ref(null)
+
+    // 初始化订单列表
+    findOrderList()
+
+    // 监听params变化
+    watch(listParams, () => {
+      findOrderList()
+    }, { deep: true })
+
+    // 事件: 切换tab标签
     const handleMenuChange = ({ name, index }) => {
-      console.log(name, index)
+      listParams.value.orderState = index
+      listParams.value.page = 1
     }
+    // 事件: 切换分页
+    const handlePageChange = (page) => {
+      listParams.value.page = page
+    }
+
+    // 请求: 获取订单列表
+    async function findOrderList() {
+      const { items, counts } = await findOrderListApi(listParams.value)
+      list.value = items
+      listParams.value.total = counts
+    }
+
+    // provide: 设置当前某一订单的状态
+    function setOrderSate(order) {
+      const target = list.value.find(it => it.id === order.id)
+      if (target) {
+        target.orderState = order.orderState
+      }
+    }
+
     return {
       currentMenu,
-      handleMenuChange
+      list,
+      handleMenuChange,
+      handlePageChange,
+      listParams
     }
   }
 }
