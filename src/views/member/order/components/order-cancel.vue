@@ -35,7 +35,7 @@ export default {
   emits: ['cancel-order'],
   setup() {
     // reject: 修改订单状态
-    const setOrderSate = inject('setOrderSate')
+    const setOrderSate = inject('setOrderSate', null)
     // 属性: 显示
     const visibleDialog = ref(false)
     // 属性: 当前选择的退货原因
@@ -68,7 +68,9 @@ export default {
       // 请求: 取消订单
       const cancelOrder = await cancelOrderApi(params)
       // reject: 修改订单状态
-      setOrderSate(cancelOrder)
+      if (setOrderSate) {
+        setOrderSate(cancelOrder)
+      }
       message.success({ text: '订单取消成功' })
       currText.value = ''
     }

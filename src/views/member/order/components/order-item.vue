@@ -50,7 +50,7 @@
         <!-- 已取消：查看详情 -->
         <CButton v-if='order.orderState===1' type='primary' size='small' @click='handlePay'>立即付款</CButton>
         <CButton v-if='order.orderState===3' type='primary' size='small' @click='handleReceipt'>确认收货</CButton>
-        <p><a href='javascript:;'>查看详情</a></p>
+        <p><a href='javascript:;' @click='$router.push({name: "order-detail", params:{id:order.id}})'>查看详情</a></p>
         <p v-if='order.orderState===1'><a href='javascript:;' @click='handleCancelOrder'>取消订单</a></p>
         <p v-if='[2,3,4,5].includes(order.orderState)'><a href='javascript:;' @click='handleAgainPayOrder'>再次购买</a></p>
         <p v-if='[4,5].includes(order.orderState)'><a href='javascript:;'>申请售后</a></p>

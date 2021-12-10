@@ -31,3 +31,8 @@ export const cancelReason = [
   '其他渠道价格更低',
   '不想买了'
 ]
+
+export const payType = {
+  1: '在线支付',
+  2: '货到付款'
+}
