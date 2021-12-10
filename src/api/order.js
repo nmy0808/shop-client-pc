@@ -58,3 +58,11 @@ export const deleteOrderApi = (ids) => {
 export const findLogisticsApi = (id) => {
   return request.get(`/member/order/${id}/logistics`)
 }
+/**
+ * 确认收货
+ * @param id
+ * @returns {*}
+ */
+export const receiptApi = (id) => {
+  return request.put(`/member/order/${id}/receipt`)
+}

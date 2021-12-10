@@ -7,6 +7,7 @@
       @cancel-order='handleCancelOrder'
       @delete-order='handleDeleteOrder'
       @find-logistics='handleFindLogistics'
+      @receipt='handleReceipt'
     />
     <teleport to='body'>
       <order-cancel ref='cancelCom' />
@@ -19,7 +20,7 @@ import OrderItem from '@/views/member/order/components/order-item'
 import OrderCancel from '@/views/member/order/components/order-cancel'
 import Confirm from '@/components/library/confirm'
 import { inject, ref } from 'vue'
-import { deleteOrderApi } from '@/api/order'
+import { deleteOrderApi, receiptApi } from '@/api/order'
 import OrderLogistics from '@/views/member/order/components/order-logistics'
 
 export default {
@@ -34,6 +35,8 @@ export default {
   setup() {
     // reject: 获取订单列表
     const findOrderList = inject('findOrderList')
+    // reject: 设置订单项的状态
+    const setOrderSate = inject('setOrderSate')
     // 获取组件: 取消dialog组件
     const cancelCom = ref(null)
     // 获取组件: 物流dialog组件
@@ -58,12 +61,25 @@ export default {
     const handleFindLogistics = (order) => {
       logCom.value.open(order)
     }
+    // 事件: 确认收货
+    const handleReceipt = (order) => {
+      Confirm({ title: '删除订单', text: '确认删除订单吗?' })
+        .then(async (res) => {
+          // 请求: 确认该订单
+          const targetOrder = await receiptApi(order.id)
+          // 订单状态: 该订单改为确认收货状态
+          setOrderSate(targetOrder)
+        })
+        .catch(res => {
+        })
+    }
     return {
       cancelCom,
       logCom,
       handleCancelOrder,
       handleDeleteOrder,
-      handleFindLogistics
+      handleFindLogistics,
+      handleReceipt
     }
   }
 }
