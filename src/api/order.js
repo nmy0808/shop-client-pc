@@ -7,6 +7,13 @@ export const findCheckoutInfoApi = () => {
   return request.get('/member/order/pre')
 }
 /**
+ * 再次购买
+ * 获取结算信息 (根据订单号)
+ */
+export const findCheckoutInfoByOrderApi = (id) => {
+  return request.get('/member/order/repurchase/' + id)
+}
+/**
  * 提交订单
  * @returns {*}
  */

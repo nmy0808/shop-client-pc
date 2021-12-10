@@ -48,11 +48,11 @@
         <!-- 待评价：查看详情，再次购买，申请售后 -->
         <!-- 已完成：查看详情，再次购买，申请售后 -->
         <!-- 已取消：查看详情 -->
-        <CButton v-if='order.orderState===1' type='primary' size='small'>立即付款</CButton>
+        <CButton v-if='order.orderState===1' type='primary' size='small' @click='handlePay'>立即付款</CButton>
         <CButton v-if='order.orderState===3' type='primary' size='small' @click='handleReceipt'>确认收货</CButton>
         <p><a href='javascript:;'>查看详情</a></p>
         <p v-if='order.orderState===1'><a href='javascript:;' @click='handleCancelOrder'>取消订单</a></p>
-        <p v-if='[2,3,4,5].includes(order.orderState)'><a href='javascript:;'>再次购买</a></p>
+        <p v-if='[2,3,4,5].includes(order.orderState)'><a href='javascript:;' @click='handleAgainPayOrder'>再次购买</a></p>
         <p v-if='[4,5].includes(order.orderState)'><a href='javascript:;'>申请售后</a></p>
       </div>
     </div>
@@ -65,7 +65,7 @@ import { findLogisticsApi, receiptApi } from '@/api/order'
 
 export default {
   name: 'OrderItem',
-  emits: ['cancel-order', 'delete-order', 'find-logistics', 'receipt'],
+  emits: ['cancel-order', 'delete-order', 'find-logistics', 'receipt', 'pay-order', 'again-pay'],
   props: {
     order: {
       type: Object,
@@ -91,13 +91,23 @@ export default {
     const handleReceipt = () => {
       emit('receipt', props.order)
     }
+    // 事件: 立即付款
+    const handlePay = () => {
+      emit('pay-order', props.order)
+    }
+    // 事件: 再次购买
+    const handleAgainPayOrder = () => {
+      emit('again-pay', props.order)
+    }
     return {
       orderStatus,
       countdownText,
       handleCancelOrder,
       handleDeleteOrder,
       handleFindLogistics,
-      handleReceipt
+      handleReceipt,
+      handlePay,
+      handleAgainPayOrder
     }
   }
 }

@@ -90,7 +90,7 @@
 </template>
 <script>
 import CheckoutAddress from '@/views/member/pay/components/checkout-address'
-import { findCheckoutInfoApi, submitOrderApi } from '@/api/order'
+import { findCheckoutInfoApi, findCheckoutInfoByOrderApi, submitOrderApi } from '@/api/order'
 import { computed, provide, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import message from '@/components/library/message'
@@ -142,7 +142,16 @@ export default {
      * @returns {Promise<void>}
      */
     async function getOrderInfo() {
-      order.value = await findCheckoutInfoApi()
+      // route: 获取当前 orderId
+      const orderId = router.currentRoute.value.query.orderId
+      // 判断: 当前地址栏是否有orderId, 如果有就是再次购买
+      if (orderId) {
+        // 请求: 根据orderID获取订单信息
+        order.value = await findCheckoutInfoByOrderApi(orderId)
+      } else {
+        // 请求: 根据当前选中商品获取订单信息
+        order.value = await findCheckoutInfoApi()
+      }
       goods.value = order.value.goods
       summary.value = order.value.summary
       userAddresses.value = order.value.userAddresses

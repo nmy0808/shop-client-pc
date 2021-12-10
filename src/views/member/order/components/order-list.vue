@@ -8,6 +8,8 @@
       @delete-order='handleDeleteOrder'
       @find-logistics='handleFindLogistics'
       @receipt='handleReceipt'
+      @pay-order='handlePayOrder'
+      @again-pay='handleAgainPayOrder'
     />
     <teleport to='body'>
       <order-cancel ref='cancelCom' />
@@ -22,6 +24,7 @@ import Confirm from '@/components/library/confirm'
 import { inject, ref } from 'vue'
 import { deleteOrderApi, receiptApi } from '@/api/order'
 import OrderLogistics from '@/views/member/order/components/order-logistics'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'order-list',
@@ -41,6 +44,8 @@ export default {
     const cancelCom = ref(null)
     // 获取组件: 物流dialog组件
     const logCom = ref(null)
+    // router
+    const router = useRouter()
     // 事件: 打开取消订单弹窗
     const handleCancelOrder = (order) => {
       cancelCom.value.open(order)
@@ -73,13 +78,28 @@ export default {
         .catch(res => {
         })
     }
+    // 事件: 立即付款
+    const handlePayOrder = (order) => {
+      router.push({ name: 'pay', query: { orderId: order.id } })
+    }
+    // 事件: 再次付款
+    const handleAgainPayOrder = (order) => {
+      Confirm({ title: '再次购买', text: '是否再次购买?' })
+        .then(async (res) => {
+          router.push({ name: 'pay-checkout', query: { orderId: order.id } })
+        })
+        .catch(res => {
+        })
+    }
     return {
       cancelCom,
       logCom,
       handleCancelOrder,
       handleDeleteOrder,
       handleFindLogistics,
-      handleReceipt
+      handleReceipt,
+      handlePayOrder,
+      handleAgainPayOrder
     }
   }
 }
